@@ -1,0 +1,93 @@
+/* Newly Listed IPOs Section Styles - scoped to IPO page */
+.ipo-page .newly-listed-section {
+    width: 100%;
+    max-width: 1400px; /* Consistent width with other sections */
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: 'Poppins', sans-serif;
+    overflow: visible;
+}
+
+.newly-listed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+}
+
+/* IPO News & Analysis Section */
+.ipo-news-analysis {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.news-analysis-container {
+    display: flex;
+    gap: 30px;
+}
+
+@media screen and (max-width: 992px) {
+    .news-analysis-container {
+        flex-direction: column;
+    }
+}
+
+.ipo-news-box, .ipo-analysis-box {
+    flex: 1;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+}
+
+.ipo-news-box h3, .ipo-analysis-box h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1E1E1E;
+    margin: 0 0 16px 0;
+}
+
+.news-list, .analysis-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.news-item, .analysis-item {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.news-item:last-child, .analysis-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.news-item h4, .analysis-item h4 {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1E1E1E;
+    margin: 0 0 8px 0;
+}
+
+.news-timestamp, .analysis-timestamp {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+}
+
+/* Responsive adjustments for mobile */
+@media screen and (max-width: 768px) {
+    .ipo-news-box, .ipo-analysis-box {
+        padding: 20px;
+    }
+    
+    .news-item h4, .analysis-item h4 {
+        font-size: 14px;
+    }
+}
+
+/* All other styling inherits from common.css and upcoming.css */

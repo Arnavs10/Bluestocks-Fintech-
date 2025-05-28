@@ -1,0 +1,110 @@
+<!-- IPO Component -->
+<!-- IPO Section CSS Files -->
+<link rel="stylesheet" href="/styles/IpoSectionCSS/common.css">
+<link rel="stylesheet" href="/styles/IpoSectionCSS/header.css">
+<link rel="stylesheet" href="/styles/IpoSectionCSS/upcoming.css">
+<link rel="stylesheet" href="/styles/IpoSectionCSS/ongoing.css">
+<link rel="stylesheet" href="/styles/IpoSectionCSS/newlyListed.css">
+<link rel="stylesheet" href="/styles/IpoSectionCSS/cta.css">
+<link rel="stylesheet" href="/styles/IpoSectionCSS/mobile.css">
+<link rel="stylesheet" href="/styles/IpoSectionCSS/navbar-fix.css">
+<link rel="stylesheet" href="/styles/IpoSectionCSS/faq.css">
+<!-- Direct script include for reliability -->
+<script src="/components/ipo/ipo.js"></script>
+
+<main class="ipo-page">
+    <!-- IPO sections will be loaded here -->
+    <div id="upcoming-ipos-container"></div>
+    <div id="cta-container"></div>
+    <div id="ongoing-ipos-container"></div>
+    <div id="newly-listed-container"></div>
+    <div id="faq-container"></div>
+</main>
+
+<!-- Component loader script -->
+<script>
+    // Function to load HTML components - globally available
+    function loadIpoComponent(url, containerId) {
+        return fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to load component from ${url}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                const container = document.getElementById(containerId);
+                if (!container) {
+                    console.error(`Container ${containerId} not found`);
+                    return;
+                }
+                container.innerHTML = html;
+                
+                // Execute scripts in the loaded HTML if any
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(script => {
+                    const newScript = document.createElement('script');
+                    if (script.src) {
+                        newScript.src = script.src;
+                    } else {
+                        newScript.textContent = script.textContent;
+                    }
+                    document.head.appendChild(newScript);
+                    document.head.removeChild(newScript);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading component:', error);
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.innerHTML = `<p>Error loading component. Please try refreshing the page.</p>`;
+                }
+            });
+    }
+    
+    // Function to load IPO sections
+    function loadAllIpoSections() {
+        console.log('Loading IPO components...');
+        const basePath = '/components/ipo/sections/';
+        
+        // Check if containers exist before attempting to load
+        const containers = [
+            'upcoming-ipos-container',
+            'cta-container',
+            'ongoing-ipos-container',
+            'newly-listed-container',
+            'faq-container'
+        ];
+        
+        const allContainersExist = containers.every(id => document.getElementById(id));
+        if (!allContainersExist) {
+            console.error('Some IPO section containers not found, will retry...');
+            setTimeout(loadAllIpoSections, 500);
+            return;
+        }
+        
+        Promise.all([
+            loadIpoComponent(basePath + 'upcoming.html', 'upcoming-ipos-container'),
+            loadIpoComponent(basePath + 'cta.html', 'cta-container'),
+            loadIpoComponent(basePath + 'ongoing.html', 'ongoing-ipos-container'),
+            loadIpoComponent(basePath + 'newlyListed.html', 'newly-listed-container'),
+            loadIpoComponent(basePath + 'faq.html', 'faq-container')
+        ]).then(() => {
+            console.log('All IPO components loaded successfully!');
+            // Initialize IPO slider functionality
+            initializeIPOSlider();
+            initializeNewlyListedSlider();
+            initializeOngoingIPOSlider();
+        }).catch(error => {
+            console.error('Error loading IPO components:', error);
+        });
+    }
+    
+    // Load components when DOM is ready and after a short delay to ensure containers are available
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(loadAllIpoSections, 300);
+    });
+    
+    // Also attempt to load when this script runs (in case DOMContentLoaded already fired)
+    setTimeout(loadAllIpoSections, 300);
+</script>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BLUESTOCK</title>
+    <link rel="stylesheet" href="../../styles/dashboard/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Dashboard</h1>
+            <div class="user-info">
+                <span id="userDisplayName">Loading...</span>
+                <button id="signOutButton" class="sign-out-button">Sign Out</button>
+            </div>
+        </div>
+        
+        <div class="dashboard-content">
+            <div class="dashboard-card">
+                <h2>Welcome to BLUESTOCK</h2>
+                <p>Your account is successfully connected to Supabase!</p>
+                <p id="userEmail"></p>
+            </div>
+            
+            <div class="dashboard-section">
+                <h3>Your Watchlists</h3>
+                <div id="watchlistsContainer" class="watchlists-container">
+                    <p>You don't have any watchlists yet.</p>
+                    <button id="createWatchlistButton" class="create-button">Create Watchlist</button>
+                </div>
+            </div>
+            
+            <div class="dashboard-section">
+                <h3>Market Overview</h3>
+                <div class="market-overview">
+                    <div class="market-card">
+                        <h4>Newly Listed IPOs</h4>
+                        <div id="newlyListedIpos" class="ipo-list">
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="market-card">
+                        <h4>Upcoming IPOs</h4>
+                        <div id="upcomingIpos" class="ipo-list">
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { getCurrentUser, signOut } from '../../js/supabase.js';
+        import { getUserWatchlists, getNewlyListedIPOs, getUpcomingIPOs } from '../../js/data-service.js';
+        
+        // Initialize dashboard
+        async function initDashboard() {
+            // Check if user is authenticated
+            const user = await getCurrentUser();
+            if (!user) {
+                window.location.hash = '#/signin';
+                return;
+            }
+            
+            // Display user info
+            document.getElementById('userDisplayName').textContent = user.user_metadata?.full_name || 'User';
+            document.getElementById('userEmail').textContent = `Email: ${user.email}`;
+            
+            // Set up sign out button
+            document.getElementById('signOutButton').addEventListener('click', async () => {
+                await signOut();
+                window.location.hash = '#/signin';
+            });
+            
+            // Load watchlists
+            loadWatchlists();
+            
+            // Load IPO data
+            loadIPOData();
+        }
+        
+        // Load user watchlists
+        async function loadWatchlists() {
+            const { data: watchlists, error } = await getUserWatchlists();
+            const container = document.getElementById('watchlistsContainer');
+            
+            if (error) {
+                console.error('Error loading watchlists:', error);
+                return;
+            }
+            
+            if (watchlists && watchlists.length > 0) {
+                container.innerHTML = '';
+                watchlists.forEach(watchlist => {
+                    const watchlistElement = document.createElement('div');
+                    watchlistElement.className = 'watchlist-item';
+                    watchlistElement.innerHTML = `
+                        <h4>${watchlist.name}</h4>
+                        <p>Created: ${new Date(watchlist.created_at).toLocaleDateString()}</p>
+                        <button class="view-button" data-id="${watchlist.id}">View</button>
+                    `;
+                    container.appendChild(watchlistElement);
+                });
+                
+                // Add create button at the end
+                const createButton = document.createElement('button');
+                createButton.id = 'createWatchlistButton';
+                createButton.className = 'create-button';
+                createButton.textContent = 'Create Watchlist';
+                container.appendChild(createButton);
+                
+                // Add event listeners to view buttons
+                document.querySelectorAll('.view-button').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const watchlistId = button.getAttribute('data-id');
+                        window.location.hash = `#/watchlist/${watchlistId}`;
+                    });
+                });
+            }
+            
+            // Add event listener to create button
+            document.getElementById('createWatchlistButton').addEventListener('click', () => {
+                // Here you would show a modal or navigate to create watchlist page
+                alert('Create watchlist functionality will be implemented here');
+            });
+        }
+        
+        // Load IPO data
+        async function loadIPOData() {
+            // Load newly listed IPOs
+            const { data: newlyListed } = await getNewlyListedIPOs(3);
+            const newlyListedContainer = document.getElementById('newlyListedIpos');
+            
+            if (newlyListed && newlyListed.length > 0) {
+                newlyListedContainer.innerHTML = '';
+                newlyListed.forEach(ipo => {
+                    const ipoElement = document.createElement('div');
+                    ipoElement.className = 'ipo-item';
+                    ipoElement.innerHTML = `
+                        <h5>${ipo.company_name}</h5>
+                        <p>Listed: ${new Date(ipo.ipo_date).toLocaleDateString()}</p>
+                        <p>Price: ₹${ipo.listing_price}</p>
+                        <p class="${ipo.listing_gain_percent >= 0 ? 'gain' : 'loss'}">
+                            ${ipo.listing_gain_percent >= 0 ? '+' : ''}${ipo.listing_gain_percent}%
+                        </p>
+                    `;
+                    newlyListedContainer.appendChild(ipoElement);
+                });
+            } else {
+                newlyListedContainer.innerHTML = '<p>No recently listed IPOs</p>';
+            }
+            
+            // Load upcoming IPOs
+            const { data: upcoming } = await getUpcomingIPOs(3);
+            const upcomingContainer = document.getElementById('upcomingIpos');
+            
+            if (upcoming && upcoming.length > 0) {
+                upcomingContainer.innerHTML = '';
+                upcoming.forEach(ipo => {
+                    const ipoElement = document.createElement('div');
+                    ipoElement.className = 'ipo-item';
+                    ipoElement.innerHTML = `
+                        <h5>${ipo.company_name}</h5>
+                        <p>Date: ${new Date(ipo.ipo_date).toLocaleDateString()}</p>
+                        <p>Price: ₹${ipo.issue_price}</p>
+                        <p>Subscription: ${new Date(ipo.subscription_start).toLocaleDateString()} - 
+                           ${new Date(ipo.subscription_end).toLocaleDateString()}</p>
+                    `;
+                    upcomingContainer.appendChild(ipoElement);
+                });
+            } else {
+                upcomingContainer.innerHTML = '<p>No upcoming IPOs</p>';
+            }
+        }
+        
+        // Initialize dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>

@@ -1,0 +1,487 @@
+/* IPO Page Styles for BLUESTOCK website */
+
+:root {
+    --primary-color: #5640ff;
+    --primary-dark: #4331d4;
+    --text-dark: #1E1E1E;
+    --text-light: #667384;
+    --text-gray: #8496A9;
+    --bg-light: #f8fafc;
+    --border-color: #e5e9ef;
+    --success-color: #27ae60;
+    --hot-color: #f04438;
+    --popular-color: #f59e0b;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Hero Section */
+.ipo-hero {
+    background-color: var(--bg-light);
+    padding: 60px 0 40px;
+    position: relative;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.ipo-hero h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 42px;
+    color: var(--text-dark);
+    margin-bottom: 16px;
+}
+
+.ipo-hero .subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    color: var(--text-light);
+    max-width: 600px;
+    margin: 0 auto 32px;
+}
+
+.search-container {
+    display: flex;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.ipo-search {
+    flex: 1;
+    padding: 14px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 30px 0 0 30px;
+    font-size: 16px;
+    outline: none;
+}
+
+.search-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 0 30px 30px 0;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-btn:hover {
+    background-color: var(--primary-dark);
+}
+
+/* IPO Section Common Styles */
+.ipo-page section {
+    padding: 70px 0;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.section-header h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.view-all-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+.view-all-link:hover {
+    text-decoration: underline;
+}
+
+.ipo-page .container {
+    max-width: auto;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Alternating Sections Background */
+.current-ipos-section {
+    background-color: white;
+}
+
+.upcoming-ipos-section {
+    background-color: var(--bg-light);
+}
+
+.apply-ipo-section {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 60px 0;
+}
+
+.apply-ipo-content {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.apply-ipo-content h2 {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.apply-ipo-content p {
+    font-size: 18px;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.explore-btn {
+    display: inline-block;
+    background-color: white;
+    color: var(--primary-color);
+    font-weight: 600;
+    padding: 14px 32px;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.explore-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* IPO Grid Layout */
+.ipo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+/* IPO Card Styling */
+.ipo-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    padding: 24px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.ipo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.company-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 10px;
+    background-color: var(--bg-light);
+    padding: 8px;
+}
+
+.subscription-status {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.subscription-status.hot {
+    background-color: rgba(240, 68, 56, 0.15);
+    color: var(--hot-color);
+}
+
+.subscription-status.popular {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: var(--popular-color);
+}
+
+.subscription-status.upcoming {
+    background-color: rgba(86, 64, 255, 0.15);
+    color: var(--primary-color);
+}
+
+.subscription-status.anticipated {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: var(--success-color);
+}
+
+.company-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--text-dark);
+    margin: 0 0 16px 0;
+}
+
+.ipo-details {
+    margin-bottom: 16px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.detail-label {
+    color: var(--text-gray);
+}
+
+.detail-value {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.subscription-dates {
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.5;
+}
+
+.subscription-dates strong {
+    color: var(--text-dark);
+}
+
+.apply-btn, .notify-btn {
+    display: block;
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    margin-top: auto;
+}
+
+.apply-btn:hover, .notify-btn:hover {
+    background-color: var(--primary-dark);
+}
+
+.notify-btn {
+    background-color: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.notify-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* FAQ Section */
+.ipo-faq-section {
+    background-color: white;
+    padding: 80px 0;
+}
+
+.ipo-faq-section h2 {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 50px;
+    color: var(--text-dark);
+}
+
+.faq-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.faq-item {
+    margin-bottom: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background-color: var(--bg-light);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.faq-question:hover {
+    background-color: rgba(86, 64, 255, 0.05);
+}
+
+.faq-question h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.toggle-icon {
+    color: var(--primary-color);
+    font-size: 20px;
+    font-weight: bold;
+    transition: transform 0.3s;
+}
+
+.faq-item.active .toggle-icon {
+    transform: rotate(45deg);
+}
+
+.faq-answer {
+    padding: 0 24px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s;
+    background-color: white;
+}
+
+.faq-item.active .faq-answer {
+    padding: 20px 24px;
+    max-height: 300px;
+}
+
+.faq-answer p {
+    color: var(--text-light);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Resources Section - Kept and improved */
+.resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 30px;
+}
+
+.resource-card {
+    background-color: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.resource-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.resource-card h3 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--text-dark);
+    margin-bottom: 12px;
+}
+
+.resource-card p {
+    color: var(--text-light);
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.btn-learn-more {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-learn-more:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+    .container {
+        max-width: 900px;
+    }
+}
+
+@media (max-width: 992px) {
+    .container {
+        max-width: 700px;
+    }
+    
+    .ipo-hero h1 {
+        font-size: 36px;
+    }
+    
+    .ipo-page h2 {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 768px) {
+    .ipo-page section {
+        padding: 40px 0;
+    }
+    
+    .ipo-hero {
+        padding: 40px 0;
+    }
+    
+    .ipo-hero h1 {
+        font-size: 32px;
+    }
+    
+    .ipo-hero .subtitle {
+        font-size: 16px;
+    }
+    
+    .ipo-grid, .resources-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .ipo-hero h1 {
+        font-size: 28px;
+    }
+    
+    .ipo-page h2 {
+        font-size: 24px;
+    }
+    
+    .ipo-page section {
+        padding: 30px 0;
+    }
+}

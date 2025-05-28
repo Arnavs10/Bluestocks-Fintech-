@@ -1,0 +1,135 @@
+/* Base styles for BLUESTOCK website */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    min-width: 100%;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    max-width: 100vw;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+/* Container */
+.container {
+    width: 100%;
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+    height: 124px;
+    box-sizing: border-box;
+}
+
+/* Button styles */
+.btn {
+    padding: 8px 18px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.btn-outline {
+    border: 1px solid #ddd;
+    color: #555;
+}
+
+.btn-outline:hover {
+    background-color: #f8f8f8;
+}
+
+.btn-primary {
+    background-color: #5640ff;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #4733d6;
+}
+
+/* Badge */
+.badge {
+    background-color: #ff4757;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+/* Hide/show based on screen size */
+.desktop-only {
+    display: flex;
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+    .desktop-only {
+        display: none !important;
+    }
+    
+    /* Force body to have relative positioning for absolute elements */
+    body {
+        position: relative;
+    }
+}
+
+@media (max-width: 768px) {
+    html, body {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+    
+    .container {
+        width: 100% !important;
+        max-width: none !important;
+        height: 57px;
+        position: relative;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+        left: 0;
+        right: 0;
+    }
+}

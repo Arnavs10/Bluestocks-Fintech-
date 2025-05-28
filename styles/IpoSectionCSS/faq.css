@@ -1,0 +1,156 @@
+/* IPO FAQ Section Styles */
+.ipo-page .ipo-faq-section {
+    width: 100%;
+    max-width: 1400px;
+    margin: 30px auto 50px;
+    padding: 40px 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.ipo-faq-section .faq-header {
+    margin-bottom: 30px;
+}
+
+.ipo-faq-section .section-title h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1E1E1E;
+    margin: 0 0 8px 0;
+}
+
+.ipo-faq-section .section-title p {
+    font-size: 14px;
+    color: #555;
+    max-width: 700px;
+    margin: 0;
+}
+
+.faq-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 1380px; /* Match the width of the IPO sections */
+    margin: 0 auto;
+}
+
+.faq-item {
+    background-color: #F8F9FD;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid #E6E8F0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    width: 100%;
+}
+
+.faq-item.open {
+    box-shadow: 0 4px 12px rgba(86, 64, 255, 0.1);
+}
+
+.faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #1E1E1E;
+    transition: all 0.3s ease;
+}
+
+.faq-question:hover {
+    background-color: #F1F2F9;
+}
+
+.faq-item.open .faq-question {
+    color: #4169E1;
+    background-color: #F1F2F9;
+}
+
+.question-text {
+    font-size: 16px;
+    flex: 1;
+}
+
+.toggle-icon {
+    font-size: 18px;
+    font-weight: 600;
+    color: #4169E1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.faq-answer {
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.faq-item.open .faq-answer {
+    padding: 0 20px 20px;
+    max-height: 1000px; /* Large enough to accommodate any answer */
+}
+
+.faq-answer p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555;
+}
+
+/* Mobile styles */
+@media screen and (max-width: 768px) {
+    .ipo-faq-section {
+        padding: 30px 15px;
+    }
+
+    .faq-container {
+        gap: 12px;
+    }
+
+    .faq-question {
+        padding: 14px 16px;
+    }
+
+    .question-text {
+        font-size: 15px;
+    }
+
+    .faq-item.open .faq-answer {
+        padding: 0 16px 16px;
+    }
+
+    .faq-answer p {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .ipo-faq-section .section-title h2 {
+        font-size: 20px;
+    }
+
+    .ipo-faq-section .section-title p {
+        font-size: 12px;
+    }
+
+    .question-text {
+        font-size: 14px;
+    }
+
+    .toggle-icon {
+        font-size: 16px;
+    }
+
+    .faq-answer p {
+        font-size: 12px;
+    }
+}

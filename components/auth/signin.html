@@ -1,0 +1,269 @@
+<!-- BLUESTOCK Sign In Component -->
+<!-- This component is designed to be loaded dynamically into a container -->
+<link rel="stylesheet" href="../../styles/admin/signin.css">
+    <div class="signin-container">
+        <div class="logo-container">
+            <img src="../../images/logo.png" alt="BLUESTOCK Logo" class="logo">
+            <h1 class="brand-name">BLUESTOCK</h1>
+        </div>
+        
+        <h2>Sign in</h2>
+        
+        <form id="signinForm">
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="hello@bluestock.in" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="password" required>
+                    <button type="button" id="togglePassword" class="toggle-password">
+                        <img src="../../images/eye.svg" alt="Show Password" id="eyeIcon">
+                    </button>
+                </div>
+                <div class="forgot-password">
+                    <a href="#">Forgot Password?</a>
+                </div>
+            </div>
+            
+            <div class="remember-me">
+                <input type="checkbox" id="rememberMe">
+                <label for="rememberMe">Keep me signed in</label>
+            </div>
+            
+            <!-- reCAPTCHA will be added back later with proper site key -->
+            <!-- <div class="captcha-container">
+                <div id="recaptcha" class="g-recaptcha"></div>
+            </div> -->
+            
+            <button type="submit" id="signinButton" class="signin-button">Login</button>
+            
+            <div class="divider">
+                <span>or sign in with</span>
+            </div>
+            
+            <button type="button" id="googleSignIn" class="google-button">
+                <img src="../../images/google.svg" alt="Google Icon">
+                Continue with Google
+            </button>
+            
+            <div class="signup-link">
+                <a href="signup" id="createAccountLink">Create an account</a>
+            </div>
+        </form>
+    </div>
+
+    <div id="notification" class="notification hidden">
+        <p id="notificationMessage"></p>
+    </div>
+    
+    <!-- Error message container -->
+    <div id="errorMessage" class="error-message"></div>
+
+    <script>
+        // Self-contained authentication script
+        (function() {
+            console.log('%c SIGNIN COMPONENT LOADED', 'background: #4CAF50; color: white; font-size: 16px; padding: 4px 8px;');
+            
+            // Try to use the global Supabase client from various possible sources
+            let client;
+            
+            // Check different possible locations for the Supabase client
+            if (window.supabaseClient) {
+                client = window.supabaseClient;
+                console.log('%c USING GLOBAL SUPABASE CLIENT FROM window.supabaseClient', 'background: #3498db; color: white; font-size: 16px; padding: 4px 8px;');
+            } else if (window.bluestockRouter && window.bluestockRouter.supabase) {
+                client = window.bluestockRouter.supabase;
+                console.log('%c USING ROUTER SUPABASE CLIENT', 'background: #3498db; color: white; font-size: 16px; padding: 4px 8px;');
+            } else {
+                // Initialize a new client as fallback
+                console.log('%c NO GLOBAL CLIENT FOUND, INITIALIZING NEW CLIENT', 'background: #f39c12; color: white; font-size: 16px; padding: 4px 8px;');
+                const SUPABASE_URL = 'https://pyxqwiqvyivyopusgcey.supabase.co';
+                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eHF3aXF2eWl2eW9wdXNnY2V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwOTE1NzEsImV4cCI6MjA2MzY2NzU3MX0.vJEoejN1jgHeU5hcvujKMVuWCHkIy7010N76WXg3_1s';
+                client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+            
+            // Double-check that we have a working client
+            if (!client) {
+                console.error('%c ERROR: Failed to initialize Supabase client', 'background: #e74c3c; color: white; font-size: 16px; padding: 4px 8px;');
+                document.getElementById('errorMessage').textContent = 'Authentication service unavailable';
+                document.getElementById('errorMessage').classList.remove('hidden');
+                return;
+            }
+            
+            // Test the connection
+            client.auth.getSession().then(({ data, error }) => {
+                if (error) {
+                    console.error('Supabase connection error:', error.message);
+                } else {
+                    console.log('Supabase connection successful!');
+                    
+                    // If user is already authenticated, redirect to dashboard
+                    if (data && data.session) {
+                        console.log('User already authenticated, redirecting to dashboard');
+                        window.location.href = '../dashboard/dashboard.html';
+                    }
+                }
+            });
+            
+            // Handle form submission
+            const signinForm = document.getElementById('signinForm');
+            const signinButton = document.getElementById('signinButton');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (signinForm) {
+                signinForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    // Get form values
+                    const email = document.getElementById('email').value.trim();
+                    const password = document.getElementById('password').value.trim();
+                    
+                    // Basic validation
+                    if (!email || !password) {
+                        console.error('%c VALIDATION ERROR: Empty fields', 'background: #e74c3c; color: white; font-size: 16px; padding: 4px 8px;');
+                        errorMessage.textContent = 'Please fill in all fields';
+                        errorMessage.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    // Email validation
+                    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                    if (!emailRegex.test(email)) {
+                        console.error('%c VALIDATION ERROR: Invalid email format', 'background: #e74c3c; color: white; font-size: 16px; padding: 4px 8px;');
+                        errorMessage.textContent = 'Please enter a valid email address';
+                        errorMessage.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    // Show loading state
+                    signinButton.disabled = true;
+                    signinButton.textContent = 'Signing in...';
+                    errorMessage.classList.add('hidden');
+                    
+                    try {
+                        console.log('Attempting sign in with email:', email);
+                        
+                        // Attempt to sign in
+                        const { data, error } = await client.auth.signInWithPassword({
+                            email,
+                            password
+                        });
+                        
+                        if (error) {
+                            console.error('Sign in error:', error);
+                            throw error;
+                        }
+                        
+                        // Success!
+                        console.log('User signed in successfully:', data.user.email);
+                        console.log('User data:', data.user);
+                        
+                        // Success message
+                        const notification = document.getElementById('notification');
+                        const notificationMessage = document.getElementById('notificationMessage');
+                        if (notification && notificationMessage) {
+                            notificationMessage.textContent = 'Successfully signed in! Redirecting...';
+                            notification.classList.remove('hidden');
+                            notification.classList.add('success');
+                        }
+                        
+                        // Navigate to dashboard using SPA routing
+                        setTimeout(() => {
+                            console.log('Redirecting to dashboard via SPA routing');
+                            if (window.bluestockRouter) {
+                                // Use router if available
+                                window.bluestockRouter.navigate('dashboard');
+                            } else {
+                                // Fallback to hash-based routing
+                                window.location.hash = '#/dashboard';
+                            }
+                        }, 1000);
+                    } catch (error) {
+                        console.error('Sign in error details:', error);
+                        
+                        // Handle specific error cases with more user-friendly messages
+                        if (error.message.includes('invalid')) {
+                            // Email format or domain restriction errors
+                            errorMessage.textContent = 'This email address cannot be used. Please check your email address.';
+                        } else if (error.message.includes('credentials')) {
+                            // Invalid credentials
+                            errorMessage.textContent = 'Invalid email or password. Please try again.';
+                        } else if (error.message.includes('not confirmed')) {
+                            // Email not confirmed - provide resend option
+                            const resendLink = document.createElement('a');
+                            resendLink.href = '#';
+                            resendLink.textContent = 'Resend confirmation email';
+                            resendLink.style.marginLeft = '5px';
+                            resendLink.style.color = '#6366F1';
+                            resendLink.style.textDecoration = 'underline';
+                            resendLink.style.cursor = 'pointer';
+                            
+                            resendLink.addEventListener('click', async (e) => {
+                                e.preventDefault();
+                                try {
+                                    // Use the correct Supabase v2 API method for resending confirmation
+                                    const { error: resendError } = await client.auth.resendConfirmationEmail({
+                                        email: email
+                                    });
+                                    
+                                    if (resendError) {
+                                        console.error('Error resending confirmation:', resendError);
+                                        errorMessage.textContent = 'Failed to resend confirmation email. ' + resendError.message;
+                                    } else {
+                                        errorMessage.textContent = 'Confirmation email resent. Please check your inbox.';
+                                    }
+                                } catch (resendError) {
+                                    console.error('Exception resending confirmation:', resendError);
+                                    errorMessage.textContent = 'Failed to resend confirmation email. Please try again later.';
+                                }
+                            });
+                            
+                            errorMessage.textContent = 'Please confirm your email address before signing in. ';
+                            errorMessage.appendChild(resendLink);
+                        } else {
+                            // Generic error message as fallback
+                            errorMessage.textContent = error.message || 'Failed to sign in';
+                        }
+                        
+                        errorMessage.classList.remove('hidden');
+                        
+                        // Reset button
+                        signinButton.disabled = false;
+                        signinButton.textContent = 'Login';
+                    }
+                });
+            }
+            
+            // Handle password toggle
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (togglePassword && passwordInput && eyeIcon) {
+                togglePassword.addEventListener('click', () => {
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        eyeIcon.src = '../../images/eye-slash.svg';
+                    } else {
+                        passwordInput.type = 'password';
+                        eyeIcon.src = '../../images/eye.svg';
+                    }
+                });
+            }
+            
+            // Handle signup link click with direct navigation
+            const createAccountLink = document.getElementById('createAccountLink');
+            if (createAccountLink) {
+                createAccountLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log('%c NAVIGATING TO SIGNUP PAGE', 'background: #8e44ad; color: white; font-size: 16px; padding: 4px 8px;');
+                    // Use direct navigation for reliability
+                    window.location.href = 'signup';
+                });
+            }
+        })();
+    </script>
+<!-- End of Sign In Component -->

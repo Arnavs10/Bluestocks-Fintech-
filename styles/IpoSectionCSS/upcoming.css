@@ -1,0 +1,609 @@
+/* Upcoming IPOs Section Styles - scoped to IPO page */
+.ipo-page .upcoming-ipos-section {
+    width: 100%;
+    max-width: 1400px; /* Increased width for more space */
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: 'Poppins', sans-serif;
+    overflow: visible;
+}
+
+.upcoming-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+}
+
+.close-listing-row {
+    display: none; /* Hide this old structure - now moved to the grid */
+}
+
+.section-title h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1E1E1E;
+    margin: 0 0 8px 0;
+}
+
+.section-title p {
+    font-size: 14px;
+    color: #555;
+    max-width: 700px;
+    margin: 0;
+}
+
+.view-all-btn {
+    background-color: #4169E1;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.view-all-btn:hover {
+    background-color: #3050C5;
+}
+
+/* IPO Cards and Slider */
+.ipo-slider-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    padding: 0 15px;
+    box-sizing: border-box;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1380px; /* Increased container width */
+    overflow: visible;
+}
+
+/* Desktop-specific container adjustments */
+@media screen and (min-width: 993px) {
+    .ipo-slider-container {
+        padding: 0;
+        overflow: visible;
+    }
+    
+    .ipo-cards-wrapper {
+        width: 100%;
+        justify-content: space-between;
+        scroll-snap-type: none;
+        overflow: visible;
+        gap: 20px;
+        padding: 10px 0;
+    }
+    
+    .ipo-card {
+        min-width: calc(33.33% - 14px); /* Exact calculation for 3 cards */
+        max-width: calc(33.33% - 14px);
+        width: calc(33.33% - 14px);
+        flex: 0 0 calc(33.33% - 14px);
+        margin: 0;
+        border-radius: 10px;
+    }
+}
+
+.slider-arrow {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 2;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.slider-arrow:hover {
+    transform: scale(1.1);
+}
+
+.slider-arrow:focus {
+    outline: none;
+}
+
+.slider-arrow.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.slider-arrow .arrow-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.ipo-cards-wrapper {
+    display: flex;
+    gap: 25px; /* Increased gap between cards */
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    padding: 10px 0;
+    flex-wrap: nowrap;
+    transition: all 0.3s ease;
+    width: calc(100% - 70px); /* Account for arrow buttons */
+    margin: 0 auto;
+}
+
+.ipo-cards-wrapper::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+/* Default for desktop - show 3 cards */
+.ipo-card {
+    min-width: calc(33.33% - 17px); /* Adjusted calculation for 3 cards with wider gaps */
+    flex: 0 0 calc(33.33% - 17px);
+    box-sizing: border-box;
+    margin: 10px 0;
+    max-width: calc(33.33% - 17px);
+    height: auto;
+    overflow: visible;
+    scroll-snap-align: center;
+    padding: 24px; /* Increased padding */
+    width: calc(33.33% - 17px);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Expanded view styles */
+.expanded-view .ipo-cards-wrapper {
+    flex-wrap: wrap;
+    overflow: visible;
+    justify-content: center;
+    gap: 20px;
+}
+
+.expanded-view .ipo-card {
+    margin-bottom: 20px;
+}
+
+.expanded-view .slider-dots {
+    display: none;
+}
+
+/* Mobile expanded view specific styles */
+@media screen and (max-width: 480px) {
+    .expanded-view .ipo-cards-wrapper {
+        gap: 15px;
+        padding: 10px 0;
+    }
+    
+    .expanded-view .ipo-card {
+        margin: 8px 0;
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+.ipo-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.ipo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(65, 105, 225, 0.15);
+    border-color: rgba(65, 105, 225, 0.2);
+}
+
+.company-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Desktop layout with logo left and name right */
+@media screen and (min-width: 993px) {
+    .company-info {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        gap: 15px;
+    }
+    
+    .company-info h3 {
+        margin: 0;
+    }
+}
+
+.ipo-card:hover .company-info {
+    transform: scale(1.02);
+}
+
+.company-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 8px;
+    background-color: transparent;
+    transition: transform 0.3s ease;
+    margin-bottom: 10px;
+}
+
+/* Remove bottom margin for desktop view */
+@media screen and (min-width: 993px) {
+    .company-logo {
+        margin-bottom: 0;
+        width: 50px;
+        height: 50px;
+    }
+}
+
+.ipo-card:hover .company-logo {
+    transform: scale(1.05);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.company-info h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #467CFF;
+    margin: 8px 0 4px 0;
+    transition: color 0.3s ease;
+}
+
+.ipo-card:hover .company-info h3 {
+    color: #2D62FF;
+}
+
+/* New 3-column grid layout for IPO details */
+.ipo-details-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+}
+
+/* Old layout - kept for backward compatibility */
+.ipo-details {
+    display: none; /* Hide old structure */
+}
+
+.ipo-card:hover .ipo-details {
+    transform: translateX(2px);
+}
+
+.detail-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: left;
+    width: 100%;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    text-transform: uppercase;
+}
+
+.ipo-card:hover .detail-label {
+    color: #555;
+}
+
+.detail-value {
+    font-size: 15px;
+    color: #1E1E1E;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.ipo-card:hover .detail-value {
+    transform: scale(1.02);
+    color: #000;
+}
+
+.ipo-tags {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    transition: all 0.3s ease;
+    justify-content: flex-start;
+}
+
+.ipo-card:hover .ipo-tags {
+    transform: translateY(2px);
+}
+
+.tag {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.tag.rhp {
+    background-color: #F2F7FF;
+    color: #4169E1;
+}
+
+.tag.drhp {
+    background-color: #F0F7FF;
+    color: #4169E1;
+}
+
+.ipo-card:hover .tag {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(65, 105, 225, 0.1);
+}
+
+.ipo-card:hover .tag.rhp {
+    background-color: #E6F0FF;
+    border-color: rgba(65, 105, 225, 0.2);
+}
+
+.ipo-card:hover .tag.drhp {
+    background-color: #E8F2FF;
+    border-color: rgba(65, 105, 225, 0.15);
+}
+
+/* Slider Dots */
+.slider-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    padding: 0 10px;
+    margin-bottom: 16px;
+    min-height: 20px;
+    position: relative;
+    z-index: 5;
+    clear: both;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #DDD;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.dot.active {
+    background-color: #4169E1;
+    transform: scale(1.25);
+    box-shadow: 0 0 2px rgba(65, 105, 225, 0.5);
+}
+
+/* Desktop specific dots styling */
+@media screen and (min-width: 993px) {
+    .slider-dots {
+        margin-top: 20px;
+    }
+    
+    .dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* Tablet specific dots styling */
+@media screen and (min-width: 481px) and (max-width: 992px) {
+    .slider-dots {
+        margin-top: 18px;
+    }
+    
+    .dot {
+        width: 9px;
+        height: 9px;
+    }
+}
+
+/* Mobile specific dots styling */
+@media screen and (max-width: 480px) {
+    .slider-dots {
+        margin-top: 16px;
+        gap: 10px;
+    }
+    
+    .dot {
+        width: 8px;
+        height: 8px;
+    }
+}
+
+/* Responsive Styles */
+/* Tablet view (768px) - Show exactly 2 cards */
+@media screen and (max-width: 992px) and (min-width: 481px) {
+    .upcoming-header {
+        align-items: center;
+    }
+    
+    .view-all-btn {
+        white-space: nowrap;
+        padding: 8px 16px;
+        font-size: 13px;
+        min-width: 80px;
+        text-align: center;
+    }
+    
+    .ipo-slider-container {
+        overflow: hidden;
+        max-width: 100%;
+        padding: 0 10px;
+    }
+    
+    .ipo-cards-wrapper {
+        gap: 20px;
+        display: flex;
+        scroll-snap-type: x mandatory;
+        width: calc(100% - 60px);
+        justify-content: flex-start;
+        overflow-x: auto;
+    }
+    
+    .ipo-card {
+        width: 48%; /* Fixed width percentage for 2 cards */
+        min-width: 48%;
+        flex: 0 0 48%;
+        scroll-snap-align: center;
+        box-sizing: border-box;
+        max-width: none; /* Override desktop max-width */
+        padding: 18px;
+        margin: 0;
+    }
+}
+
+/* Small mobile view (under 480px) - Show 1 card */
+@media screen and (max-width: 480px) {
+    .upcoming-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    /* Container for the slider */
+    .ipo-slider-container {
+        position: relative;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Card wrapper with horizontal scroll */
+    .ipo-cards-wrapper {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+        gap: 0;
+        padding: 10px 0;
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .ipo-cards-wrapper::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+    
+    /* Individual card styling */
+    .ipo-card {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 100%;
+        min-width: 100%;
+        scroll-snap-align: center;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 16px;
+    }
+    
+    .slider-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .slider-arrow.prev-arrow {
+        left: 10px;
+    }
+    
+    .slider-arrow.next-arrow {
+        right: 10px;
+    }
+    
+    .slider-dots {
+        margin-top: 16px;
+    }
+    
+    .dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .ipo-slider-container {
+        padding: 0 10px;
+    }
+    
+    .ipo-cards-wrapper {
+        gap: 0;
+    }
+    
+    .ipo-card {
+        width: 100%;
+        min-width: 100%;
+        margin: 0;
+        padding: 16px;
+        border-radius: 8px;
+    }
+    
+    .ipo-details {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .company-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .company-logo {
+        margin-bottom: 8px;
+    }
+    
+    .slider-arrow {
+        width: 32px;
+        height: 32px;
+        top: 40%;
+    }
+    
+    .slider-arrow .arrow-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* Enhance pagination dots for better visibility */
+    .dot {
+        width: 8px;
+        height: 8px;
+        margin: 0 5px;
+    }
+}

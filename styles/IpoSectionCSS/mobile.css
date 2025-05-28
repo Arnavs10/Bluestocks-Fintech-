@@ -1,0 +1,198 @@
+/* Mobile-specific fixes for IPO section */
+/* Only apply these fixes at mobile screen sizes */
+
+@media screen and (max-width: 768px) {
+  /* General mobile adjustments */
+  .ipo-page {
+    overflow-x: hidden;
+  }
+  
+  /* Hide slider arrows on tablets */
+  .slider-arrow {
+    display: none !important;
+  }
+  
+  /* Header section fixes - ensuring content appears below the navbar */
+  .ipo-page .ipo-header-section,
+  section.ipo-header-section,
+  .mobile-visible {
+    width: 100% !important;
+    display: block !important;
+    position: relative !important;
+    overflow: visible !important;
+    padding: 25px 15px 10px !important;
+    margin-top: 50px !important; /* Margin to clear the BLUESTOCK mobile navbar (57px height + extra space) */
+    box-sizing: border-box !important;
+    z-index: 1 !important;
+  }
+  
+  .ipo-header-section h1 {
+    font-size: 26px !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+    width: 100% !important;
+  }
+  
+  .ipo-header-section p {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    margin-bottom: 20px !important;
+    display: block !important;
+    width: 100% !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* Even smaller screens */
+  .ipo-header-section {
+    padding: 20px 15px 5px !important;
+  }
+  
+  .ipo-header-section h1 {
+    font-size: 20px !important;
+  }
+  
+  .ipo-header-section p {
+    font-size: 12px !important;
+  }
+  
+  /* Card adjustments for smaller screens - matching reference image exactly */
+  .ipo-slider-container {
+    padding: 0 !important;
+    position: relative !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* Hide slider arrows on mobile */
+  .slider-arrow {
+    display: none !important;
+  }
+  
+  .ipo-card {
+    min-width: 200px !important;
+    width: 85vw !important; /* Set card width to match image */
+    max-width: 300px !important;
+    padding: 15px !important;
+    gap: 5px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07) !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Vertical company layout with logo on top */
+  .company-info {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 10px !important;
+    margin-bottom: 15px !important;
+  }
+  
+  .company-logo {
+    width: 70px !important;
+    height: 70px !important;
+    border-radius: 0 !important;
+    margin: 0 auto !important;
+  }
+  
+  .company-info h3 {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #4169E1 !important; /* Blue color for company name */
+    margin: 0 auto !important;
+  }
+  
+  /* Detail text styling to match image */
+  .ipo-details {
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
+    padding-bottom: 5px !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+  }
+  
+  /* Row of detail groups */
+  .ipo-details:nth-child(3) {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    margin-bottom: 10px !important;
+  }
+  
+  .detail-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+  
+  .detail-label {
+    font-size: 11px !important;
+    color: #555 !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.3px !important;
+  }
+  
+  .detail-value {
+    font-size: 13px !important;
+    color: #000 !important;
+    font-weight: 600 !important;
+  }
+  
+  /* Tags styling to match image */
+  .ipo-tags {
+    display: flex !important;
+    gap: 10px !important;
+    margin-top: 20px !important;
+  }
+  
+  .tag {
+    padding: 6px 20px !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+  }
+  
+  .tag.rhp {
+    background-color: #F1F1F1 !important;
+    color: #555 !important;
+  }
+  
+  .tag.drhp {
+    background-color: #EBF5FF !important;
+    color: #4169E1 !important;
+  }
+  
+  /* Section title */
+  .section-title h2 {
+    font-size: 18px !important;
+    margin-bottom: 5px !important;
+  }
+  
+  .section-title p {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* Adjust slider dots */
+  .slider-dots {
+    margin-top: 20px !important;
+  }
+  
+  .dot {
+    width: 6px !important;
+    height: 6px !important;
+  }
+  
+  /* Vertical layout for price/open/close and issue details */
+  .ipo-card {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* CLOSE and LISTING DATE side by side at bottom */
+  .close-listing-row {
+    display: flex !important;
+    justify-content: space-between !important;
+  }
+}

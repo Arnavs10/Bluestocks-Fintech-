@@ -1,0 +1,91 @@
+<!-- Navbar Component -->
+<link rel="stylesheet" href="styles/navbar.css">
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<header class="navbar">
+    <div class="container">
+        <!-- Logo and brand name -->
+        <div class="brand-container">
+            <div class="nav-logo">
+                <a href="/">
+                    <div class="logo">
+                        <div class="logo-placeholder">
+                            <img src="images/logo.png" alt="BLUESTOCK" class="logo-image">
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <span class="brand-name">BLUESTOCK</span>
+        </div>
+        
+        <!-- Navigation links in an evenly spaced container -->
+        <div class="nav-links-container">
+            <div class="ipo-link"><a href="ipo">IPO</a></div>
+            <div class="community-link"><a href="community">COMMUNITY</a></div>
+            <div class="products-link"><a href="products">PRODUCTS <span class="dropdown-arrow">&#9662;</span></a></div>
+            <div class="brokers-link"><a href="brokers">BROKERS <span class="external-arrow">&#8599;</span></a></div>
+            <div class="live-news-link-container"><a href="live-news" class="live-news-link">LIVE NEWS</a><span class="new-button">NEW</span></div>
+        </div>
+        
+        <!-- Auth buttons -->
+        <div class="nav-right-area">
+            <a href="signin" class="btn btn-outline">Sign In</a>
+            <a href="signup" class="btn btn-primary">Sign Up Now</a>
+        </div>
+        
+        <!-- Mobile menu toggle (only visible on mobile) -->
+        <div class="mobile-toggle-container">
+            <button type="button" class="menu-toggle-btn" aria-expanded="false" aria-controls="mobile-menu" aria-label="Toggle navigation menu" onclick="toggleMobileMenu(this)">
+                <img src="images/toggle-icon.png" alt="" class="menu-icon">
+            </button>
+        </div>
+    </div>
+    
+    <!-- Mobile menu container (hidden by default, shown when toggle is clicked) -->
+    <div id="mobile-menu" class="mobile-menu">
+        <div class="mobile-nav-links">
+            <div class="ipo-link"><a href="ipo">IPO</a></div>
+            <div class="community-link"><a href="community">COMMUNITY</a></div>
+            <div class="products-link"><a href="products">PRODUCTS <span class="dropdown-arrow">&#9662;</span></a></div>
+            <div class="brokers-link"><a href="brokers">BROKERS <span class="external-arrow">&#8599;</span></a></div>
+            <div class="live-news-link-container"><a href="live-news" class="live-news-link">LIVE NEWS</a><span class="new-button">NEW</span></div>
+        </div>
+        <div class="mobile-auth">
+            <a href="signin" class="btn btn-outline">Sign In</a>
+            <a href="signup" class="btn btn-primary">Sign Up Now</a>
+        </div>
+    </div>
+</header>
+
+<!-- JavaScript for mobile menu toggle -->
+<script>
+    // Function to toggle mobile menu visibility
+    function toggleMobileMenu(toggleBtn) {
+        const mobileMenu = document.getElementById('mobile-menu');
+        const body = document.body;
+        const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+        
+        // Toggle aria-expanded state for accessibility
+        toggleBtn.setAttribute('aria-expanded', !isExpanded);
+        
+        // Toggle show class on mobile menu
+        mobileMenu.classList.toggle('show');
+        
+        // Toggle menu-open class on body to prevent background scrolling
+        body.classList.toggle('menu-open');
+    }
+    
+    // Add keyboard support for mobile menu
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const toggleBtn = document.querySelector('.menu-toggle-btn');
+            
+            if (mobileMenu.classList.contains('show')) {
+                mobileMenu.classList.remove('show');
+                body.classList.remove('menu-open');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            }
+        }
+    });
+</script>

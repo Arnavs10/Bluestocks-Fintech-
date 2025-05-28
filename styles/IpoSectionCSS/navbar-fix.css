@@ -1,0 +1,26 @@
+/* Fix for IPO header positioning below navbar - MOBILE ONLY */
+
+/* No desktop adjustments */
+
+/* Mobile-specific adjustments */
+@media screen and (max-width: 768px) {
+  .ipo-header-section {
+    margin-top: 50px !important;
+  }
+  
+  .ipo-page {
+    padding-top: 0 !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* Exact specs from the BLUESTOCK mobile navbar */
+  .ipo-header-section {
+    margin-top: 70px !important;
+    padding-top: 30px !important;
+  }
+  
+  .ipo-header-section h1 {
+    margin-top: 0 !important;
+  }
+}

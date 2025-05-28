@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bluestock</title>
+    <link rel="stylesheet" href="styles/base.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Poppins font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Inline styles for responsive design and page transitions -->
+    <!-- Include Supabase client directly from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Supabase authentication check -->
+    <script>
+        // Initialize Supabase client directly
+        const SUPABASE_URL = 'https://pyxqwiqvyivyopusgcey.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eHF3aXF2eWl2eW9wdXNnY2V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwOTE1NzEsImV4cCI6MjA2MzY2NzU3MX0.vJEoejN1jgHeU5hcvujKMVuWCHkIy7010N76WXg3_1s';
+        
+        // Initialize the client
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log('Supabase client initialized in index.html');
+        
+        // Check auth state when app loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Get current user directly
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                console.log('Auth check result:', user ? 'User is signed in' : 'No user signed in');
+                
+                // Store auth state in window object for access by other scripts
+                window.userAuthenticated = !!user;
+                window.currentUser = user;
+                
+                // Handle protected routes
+                if (window.location.hash.includes('/dashboard') && !user) {
+                    window.location.hash = '#/signin';
+                }
+            } catch (error) {
+                console.error('Auth check error:', error.message);
+            }
+        });
+    </script>
+    
+    <style>
+        @media (max-width: 768px) {
+            .navbar {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                box-sizing: border-box !important;
+            }
+            
+            body, html {
+                overflow-x: hidden !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+        }
+        
+        /* Page transition styles */
+        .page-loader {
+            display: none;
+            position: fixed;
+            top: 124px; /* Position below navbar */
+            left: 0;
+            width: 100%;
+            height: calc(100% - 124px);
+            background-color: #ffffff;
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .page-loader.active {
+            display: flex;
+        }
+        
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #5640ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Ensure consistent navbar appearance during transitions */
+        #navbar-container {
+            z-index: 1000;
+        }
+        
+        /* Mobile adjustments for loader */
+        @media (max-width: 768px) {
+            .page-loader {
+                top: 57px;
+                height: calc(100% - 57px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Component containers -->
+    <div id="navbar-container"></div>
+    <div id="content-container"></div>
+    <div id="footer-container"></div>
+    
+    <!-- Page transition loader -->
+    <div class="page-loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <!-- Direct mobile menu toggle script for reliable functionality -->
+    <script>
+        // Global function for mobile menu toggle that will work with dynamically loaded content
+        window.toggleMobileMenu = function(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            console.log('BLUESTOCKS GLOBAL: Toggle mobile menu called');
+            
+            // Get elements directly
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const menuToggle = document.querySelector('.menu-toggle');
+            const body = document.body;
+            
+            if (!mobileMenu || !menuToggle) {
+                console.error('Mobile menu elements not found');
+                return false;
+            }
+            
+            // Check current visibility state
+            const isVisible = window.getComputedStyle(mobileMenu).display !== 'none';
+            
+            if (isVisible) {
+                // Hide menu
+                mobileMenu.style.display = 'none';
+                body.classList.remove('menu-open');
+            } else {
+                // Show menu with strong styling to ensure visibility
+                mobileMenu.style.display = 'block';
+                mobileMenu.style.visibility = 'visible';
+                mobileMenu.style.opacity = '1';
+                mobileMenu.style.height = 'calc(100vh - 80px)';
+                mobileMenu.style.top = '80px';
+                mobileMenu.style.width = '100%';
+                mobileMenu.style.position = 'fixed';
+                mobileMenu.style.zIndex = '9999';
+                mobileMenu.style.left = '0';
+                mobileMenu.style.backgroundColor = 'white';
+                mobileMenu.style.padding = '20px';
+                mobileMenu.style.boxShadow = '0 5px 10px rgba(0,0,0,0.1)';
+                mobileMenu.style.overflowY = 'auto';
+                body.classList.add('menu-open');
+                
+                // Make sure the menu content is visible
+                const navContainer = mobileMenu.querySelector('.nav-links-container');
+                if (navContainer) {
+                    navContainer.style.display = 'block';
+                    navContainer.style.width = '100%';
+                }
+                
+                // Force all links to display properly
+                const allLinks = mobileMenu.querySelectorAll('a, div');
+                allLinks.forEach(el => {
+                    el.style.display = 'block';
+                    el.style.visibility = 'visible';
+                    el.style.opacity = '1';
+                });
+            }
+            
+            return false;
+        };
+        
+        // Add event handler once navbar is loaded
+        function attachMobileMenuHandlers() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            if (menuToggle) {
+                console.log('BLUESTOCKS GLOBAL: Attaching global handler to toggle button');
+                menuToggle.setAttribute('onclick', 'window.toggleMobileMenu(event); return false;');
+                
+                // Also add event listeners as a backup
+                menuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.toggleMobileMenu(e);
+                    return false;
+                });
+            }
+        }
+        
+        // Setup a mutation observer to watch for navbar loading
+        const navbarObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (document.querySelector('.menu-toggle')) {
+                    attachMobileMenuHandlers();
+                    // Once found, we can disconnect the observer
+                    navbarObserver.disconnect();
+                }
+            });
+        });
+        
+        // Start observing navbar container for changes
+        const navbarContainer = document.getElementById('navbar-container');
+        if (navbarContainer) {
+            navbarObserver.observe(navbarContainer, { childList: true, subtree: true });
+        }
+    </script>
+    
+    <!-- Component loader script with routing -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show page loader during transitions
+            function showLoader() {
+                document.querySelector('.page-loader').classList.add('active');
+            }
+            
+            // Hide page loader
+            function hideLoader() {
+                document.querySelector('.page-loader').classList.remove('active');
+            }
+            
+            // Function to load HTML components
+            function loadComponent(url, containerId, showLoading = false) {
+                console.log(`Loading component: ${url} into #${containerId}`);
+                // Only show loader for content container (not navbar or footer)
+                if (showLoading && containerId === 'content-container') {
+                    showLoader();
+                }
+                
+                return fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Failed to load component from ${url}: ${response.status} ${response.statusText}`);
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        const container = document.getElementById(containerId);
+                        if (!container) {
+                            throw new Error(`Container #${containerId} not found in DOM`);
+                        }
+                        
+                        container.innerHTML = html;
+                        console.log(`Successfully loaded ${url} into #${containerId}`);
+                        
+                        // Execute scripts in the loaded HTML
+                        const scripts = container.querySelectorAll('script');
+                        console.log(`Found ${scripts.length} scripts to execute in ${url}`);
+                        
+                        scripts.forEach((script, index) => {
+                            const newScript = document.createElement('script');
+                            if (script.src) {
+                                newScript.src = script.src;
+                                console.log(`Loading external script ${index+1}/${scripts.length}: ${script.src}`);
+                            } else {
+                                newScript.textContent = script.textContent;
+                                console.log(`Executing inline script ${index+1}/${scripts.length} in ${url}`);
+                            }
+                            document.head.appendChild(newScript);
+                            // Don't remove for external scripts as they need time to load
+                            if (!script.src) {
+                                document.head.removeChild(newScript);
+                            }
+                        });
+                        
+                        // Hide loader after content is loaded
+                        if (showLoading && containerId === 'content-container') {
+                            hideLoader();
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`Error loading component ${url}:`, error);
+                        const container = document.getElementById(containerId);
+                        if (container) {
+                            container.innerHTML = `
+                                <div style="padding: 20px; text-align: center;">
+                                    <h2>Component Loading Error</h2>
+                                    <p>Failed to load component from ${url}</p>
+                                    <p>Error: ${error.message}</p>
+                                    <button onclick="location.reload()" style="padding: 8px 16px; margin-top: 10px;">Reload Page</button>
+                                </div>
+                            `;
+                        }
+                        
+                        // Hide loader on error
+                        if (showLoading && containerId === 'content-container') {
+                            hideLoader();
+                        }
+                    });
+            }
+            
+            // Function to determine which component to load based on URL
+            function handleRouting() {
+                const path = window.location.pathname.toLowerCase();
+                
+                // Extract route without leading slash for more consistent matching
+                const cleanPath = path.replace(/^\/+/, '');
+                
+                // Check if we're on an auth page
+                const isAuthPage = cleanPath.startsWith('signin') || cleanPath.startsWith('signup');
+                
+                // Only load navbar and footer if not on auth pages
+                if (!isAuthPage) {
+                    loadComponent('components/navbar.html', 'navbar-container', false);
+                    loadComponent('components/footer.html', 'footer-container', false);
+                    
+                    // Highlight active link in navbar (runs after navbar is loaded)
+                    setTimeout(() => {
+                        highlightActiveLink(path);
+                    }, 100);
+                } else {
+                    // Hide navbar and footer containers for auth pages
+                    document.getElementById('navbar-container').style.display = 'none';
+                    document.getElementById('footer-container').style.display = 'none';
+                }
+                
+                // Debug the current path
+                console.log('Current path:', path, 'Clean path:', cleanPath);
+                
+                // If we're at the root path, redirect to ipo
+                if (path === '/' || path === '') {
+                    window.history.pushState({}, '', 'ipo');
+                    console.log('Loading IPO component from root path');
+                    loadComponent('components/ipo/ipo.html', 'content-container', true);
+                    
+                    // Highlight IPO link after navbar loads
+                    setTimeout(() => {
+                        const ipoLink = document.querySelector('.ipo-link a');
+                        if (ipoLink) ipoLink.classList.add('active');
+                    }, 200);
+                }
+                // Route to specific content based on path - show loader for content changes
+                else if (cleanPath.startsWith('ipo')) {
+                    console.log('Loading IPO component from /ipo path');
+                    loadComponent('components/ipo/ipo.html', 'content-container', true);
+                } else if (cleanPath.startsWith('community')) {
+                    loadComponent('components/community/community.html', 'content-container', true);
+                } else if (cleanPath.startsWith('products')) {
+                    loadComponent('components/products/products.html', 'content-container', true);
+                } else if (cleanPath.startsWith('brokers')) {
+                    loadComponent('components/brokers/brokers.html', 'content-container', true);
+                } else if (cleanPath.startsWith('live-news')) {
+                    loadComponent('components/live-news/live-news.html', 'content-container', true);
+                } else if (cleanPath.startsWith('home')) {
+                    // Load home page
+                    loadComponent('components/home.html', 'content-container', true);
+                } else if (cleanPath.startsWith('signin')) {
+                    loadComponent('components/auth/signin.html', 'content-container', true);
+                } else if (cleanPath.startsWith('signup')) {
+                    loadComponent('components/auth/signup.html', 'content-container', true);
+                } else if (cleanPath.startsWith('dashboard')) {
+                    // Check if user is authenticated before loading dashboard
+                    if (window.userAuthenticated) {
+                        loadComponent('components/dashboard/dashboard.html', 'content-container', true);
+                    } else {
+                        // Redirect to signin if not authenticated
+                        window.history.pushState({}, '', 'signin');
+                        loadComponent('components/auth/signin.html', 'content-container', true);
+                    }
+                } else {
+                    // Default to ipo page for any other path
+                    window.history.pushState({}, '', 'ipo');
+                    loadComponent('components/ipo/ipo.html', 'content-container', true);
+                }
+            }
+            
+            // Function to highlight active link in navbar
+            function highlightActiveLink(path) {
+                // First, remove active class from all navigation links
+                document.querySelectorAll('.ipo-link a, .community-link a, .products-link a, .brokers-link a, .live-news-link-container a').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Extract route without leading slash for more consistent matching
+                const cleanPath = path.replace(/^\/+/, '');
+                
+                // Then add active class to current link based on cleaned path
+                if (cleanPath.startsWith('ipo')) {
+                    const ipoLink = document.querySelector('.ipo-link a');
+                    if (ipoLink) ipoLink.classList.add('active');
+                } else if (cleanPath.startsWith('community')) {
+                    const communityLink = document.querySelector('.community-link a');
+                    if (communityLink) communityLink.classList.add('active');
+                } else if (cleanPath.startsWith('products')) {
+                    const productsLink = document.querySelector('.products-link a');
+                    if (productsLink) productsLink.classList.add('active');
+                } else if (cleanPath.startsWith('brokers')) {
+                    const brokersLink = document.querySelector('.brokers-link a');
+                    if (brokersLink) brokersLink.classList.add('active');
+                } else if (cleanPath.startsWith('live-news')) {
+                    const newsLink = document.querySelector('.live-news-link-container a');
+                    if (newsLink) newsLink.classList.add('active');
+                }
+                // We don't highlight any link for home since there's no home link
+            }
+            
+            // Initial route handling
+            handleRouting();
+            
+            // Handle navigation without page refresh
+            document.addEventListener('click', function(e) {
+                // Find the nearest anchor tag
+                let target = e.target;
+                while (target && target.tagName !== 'A') {
+                    target = target.parentNode;
+                    if (!target) return;
+                }
+                
+                // Only handle internal links
+                const href = target.getAttribute('href');
+                if (href && !href.startsWith('http') && !href.startsWith('mailto:') && href !== '#') {
+                    e.preventDefault();
+                    
+                    // Show loader before navigation
+                    showLoader();
+                    
+                    // Update URL without refreshing page
+                    window.history.pushState({}, '', href);
+                    
+                    // Handle routing based on new URL
+                    handleRouting();
+                }
+            });
+            
+            // Handle back/forward browser navigation
+            window.addEventListener('popstate', function() {
+                handleRouting();
+            });
+        });
+    </script>
+</body>
+</html>

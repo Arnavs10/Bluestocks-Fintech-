@@ -1,0 +1,587 @@
+/* Ongoing IPOs Section Styles - scoped to IPO page */
+.ipo-page .ongoing-ipos-section {
+    width: 100%;
+    max-width: 1400px; /* Increased width for more space */
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: 'Poppins', sans-serif;
+    overflow: visible;
+}
+
+/* Section Header */
+.ongoing-ipos-section .ongoing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+}
+
+.ongoing-ipos-section .close-listing-row {
+    display: none; /* Hide this old structure - now moved to the grid */
+}
+
+.ongoing-ipos-section .section-title h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1E1E1E;
+    margin: 0 0 8px 0;
+}
+
+.ongoing-ipos-section .section-title p {
+    font-size: 14px;
+    color: #555;
+    max-width: 700px;
+    margin: 0;
+}
+
+.ongoing-ipos-section .view-all-btn {
+    background-color: #4169E1;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.ongoing-ipos-section .view-all-btn:hover {
+    background-color: #3050C5;
+}
+
+/* IPO Cards and Slider */
+.ongoing-ipos-section .ipo-slider-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    padding: 0 15px;
+    box-sizing: border-box;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1380px; /* Increased container width */
+    overflow: visible;
+}
+
+/* Desktop-specific container adjustments */
+@media screen and (min-width: 993px) {
+    .ongoing-ipos-section .ipo-slider-container {
+        padding: 0;
+        overflow: visible;
+    }
+    
+    .ongoing-ipos-section .ipo-cards-wrapper {
+        width: 100%;
+        justify-content: space-between;
+        scroll-snap-type: none;
+        overflow: visible;
+        gap: 20px;
+        padding: 10px 0;
+    }
+    
+    .ongoing-ipos-section .ipo-card {
+        min-width: calc(33.33% - 14px); /* Exact calculation for 3 cards */
+        max-width: calc(33.33% - 14px);
+        width: calc(33.33% - 14px);
+        flex: 0 0 calc(33.33% - 14px);
+        margin: 0;
+        border-radius: 10px;
+    }
+}
+
+.ongoing-ipos-section .slider-arrow {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 2;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.ongoing-ipos-section .slider-arrow:hover {
+    transform: scale(1.1);
+}
+
+.ongoing-ipos-section .slider-arrow:focus {
+    outline: none;
+}
+
+.ongoing-ipos-section .slider-arrow.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ongoing-ipos-section .slider-arrow .arrow-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.ongoing-ipos-section .ipo-cards-wrapper {
+    display: flex;
+    gap: 25px; /* Increased gap between cards */
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    padding: 10px 0;
+    flex-wrap: nowrap;
+    transition: all 0.3s ease;
+    width: calc(100% - 70px); /* Account for arrow buttons */
+    margin: 0 auto;
+}
+
+.ongoing-ipos-section .ipo-cards-wrapper::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+/* Default for desktop - show 3 cards */
+.ongoing-ipos-section .ipo-card {
+    min-width: calc(33.33% - 17px); /* Adjusted calculation for 3 cards with wider gaps */
+    flex: 0 0 calc(33.33% - 17px);
+    box-sizing: border-box;
+    margin: 10px 0;
+    max-width: calc(33.33% - 17px);
+    height: auto;
+    overflow: visible;
+    scroll-snap-align: center;
+    padding: 24px; /* Increased padding */
+    width: calc(33.33% - 17px);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Expanded view styles */
+.ongoing-ipos-section.expanded-view .ipo-cards-wrapper {
+    flex-wrap: wrap;
+    overflow: visible;
+    justify-content: center;
+    gap: 20px;
+}
+
+.ongoing-ipos-section.expanded-view .ipo-card {
+    margin-bottom: 20px;
+}
+
+.ongoing-ipos-section.expanded-view .slider-dots {
+    display: none;
+}
+
+/* Mobile expanded view specific styles */
+@media screen and (max-width: 480px) {
+    .ongoing-ipos-section.expanded-view .ipo-cards-wrapper {
+        gap: 15px;
+        padding: 10px 0;
+    }
+    
+    .ongoing-ipos-section.expanded-view .ipo-card {
+        margin: 8px 0;
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+.ongoing-ipos-section .ipo-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.ongoing-ipos-section .ipo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(65, 105, 225, 0.15);
+    border-color: rgba(65, 105, 225, 0.2);
+}
+
+/* Company Info Section */
+.ongoing-ipos-section .company-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Desktop layout with logo left and name right */
+@media screen and (min-width: 993px) {
+    .ongoing-ipos-section .company-info {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        gap: 15px;
+    }
+    
+    .ongoing-ipos-section .company-info h3 {
+        margin: 0;
+    }
+}
+
+.ongoing-ipos-section .ipo-card:hover .company-info {
+    transform: scale(1.02);
+}
+
+.ongoing-ipos-section .company-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 8px;
+    background-color: transparent;
+    transition: transform 0.3s ease;
+    margin-bottom: 10px;
+}
+
+/* Remove bottom margin for desktop view */
+@media screen and (min-width: 993px) {
+    .ongoing-ipos-section .company-logo {
+        margin-bottom: 0;
+        width: 50px;
+        height: 50px;
+    }
+}
+
+.ongoing-ipos-section .ipo-card:hover .company-logo {
+    transform: scale(1.05);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ongoing-ipos-section .company-info h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #467CFF;
+    margin: 8px 0 4px 0;
+    transition: color 0.3s ease;
+}
+
+.ongoing-ipos-section .ipo-card:hover .company-info h3 {
+    color: #2D62FF;
+}
+
+/* New 3-column grid layout for IPO details */
+.ongoing-ipos-section .ipo-details-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.ongoing-ipos-section .detail-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.ongoing-ipos-section .detail-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.ongoing-ipos-section .detail-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6B7280;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ongoing-ipos-section .detail-value {
+    font-size: 15px;
+    color: #1E1E1E;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.ongoing-ipos-section .ipo-card:hover .detail-value {
+    transform: scale(1.02);
+    color: #000;
+}
+
+/* Close-Listing Row */
+.ongoing-ipos-section .close-listing-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+/* Tags */
+.ongoing-ipos-section .ipo-tags {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    transition: all 0.3s ease;
+    justify-content: flex-start;
+}
+
+.ongoing-ipos-section .ipo-card:hover .ipo-tags {
+    transform: translateY(2px);
+}
+
+.ongoing-ipos-section .tag {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.ongoing-ipos-section .tag.rhp {
+    background-color: #F2F7FF;
+    color: #4169E1;
+}
+
+.ongoing-ipos-section .tag.drhp {
+    background-color: #F0F7FF;
+    color: #4169E1;
+}
+
+.ongoing-ipos-section .ipo-card:hover .tag {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(65, 105, 225, 0.1);
+}
+
+.ongoing-ipos-section .ipo-card:hover .tag.rhp {
+    background-color: #E6F0FF;
+    border-color: rgba(65, 105, 225, 0.2);
+}
+
+.ongoing-ipos-section .ipo-card:hover .tag.drhp {
+    background-color: #E8F2FF;
+    border-color: rgba(65, 105, 225, 0.15);
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 992px) {
+    .ongoing-ipos-section.expanded-view .ipo-card {
+        width: calc(50% - 15px);
+    }
+}
+
+@media (max-width: 768px) {
+    .ongoing-ipos-section.expanded-view .ipo-card {
+        width: 100%;
+    }
+}
+
+/* Hide dots and arrows in expanded view */
+.ongoing-ipos-section.expanded-view .slider-dots {
+    display: none;
+}
+
+.ongoing-ipos-section.expanded-view .slider-arrow {
+    display: none;
+}
+
+/* Slider Dots */
+.ongoing-ipos-section .slider-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 30px;
+}
+
+.ongoing-ipos-section .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #D1D5DB;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.ongoing-ipos-section .dot.active {
+    width: 24px;
+    border-radius: 4px;
+    background-color: #467CFF;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+    .ongoing-ipos-section {
+        max-width: 1100px;
+    }
+}
+
+/* Responsive Styles */
+/* Tablet view (768px) - Show exactly 2 cards */
+@media screen and (max-width: 992px) and (min-width: 481px) {
+    .ongoing-ipos-section .ongoing-header {
+        align-items: center;
+    }
+    
+    .ongoing-ipos-section .view-all-btn {
+        white-space: nowrap;
+        padding: 8px 16px;
+        font-size: 13px;
+        min-width: 80px;
+        text-align: center;
+    }
+    
+    .ongoing-ipos-section .ipo-slider-container {
+        overflow: hidden;
+        max-width: 100%;
+        padding: 0 10px;
+    }
+    
+    .ongoing-ipos-section .ipo-cards-wrapper {
+        gap: 20px;
+        display: flex;
+        scroll-snap-type: x mandatory;
+        width: calc(100% - 60px);
+        justify-content: flex-start;
+        overflow-x: auto;
+    }
+    
+    .ongoing-ipos-section .ipo-card {
+        width: 48%; /* Fixed width percentage for 2 cards */
+        min-width: 48%;
+        flex: 0 0 48%;
+        scroll-snap-align: center;
+        box-sizing: border-box;
+        max-width: none; /* Override desktop max-width */
+        padding: 18px;
+        margin: 0;
+    }
+}
+
+/* Small mobile view (under 480px) - Show 1 card */
+@media screen and (max-width: 480px) {
+    .ongoing-ipos-section .ongoing-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    /* Container for the slider */
+    .ongoing-ipos-section .ipo-slider-container {
+        position: relative;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Card wrapper with horizontal scroll */
+    .ongoing-ipos-section .ipo-cards-wrapper {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+        gap: 0;
+        padding: 10px 0;
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .ongoing-ipos-section .ipo-cards-wrapper::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+    
+    /* Individual card styling */
+    .ongoing-ipos-section .ipo-card {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 100%;
+        min-width: 100%;
+        scroll-snap-align: center;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 16px;
+    }
+    
+    .ongoing-ipos-section .slider-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .ongoing-ipos-section .slider-arrow.prev-arrow {
+        left: 10px;
+    }
+    
+    .ongoing-ipos-section .slider-arrow.next-arrow {
+        right: 10px;
+    }
+    
+    .ongoing-ipos-section .slider-dots {
+        margin-top: 16px;
+    }
+    
+    .ongoing-ipos-section .dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .ongoing-ipos-section .ipo-slider-container {
+        padding: 0 10px;
+    }
+    
+    .ongoing-ipos-section .ipo-cards-wrapper {
+        gap: 0;
+    }
+    
+    .ongoing-ipos-section .ipo-card {
+        width: 100%;
+        min-width: 100%;
+        margin: 0;
+        padding: 16px;
+        border-radius: 8px;
+    }
+    
+    .ongoing-ipos-section .ipo-details {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .ongoing-ipos-section .company-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .ongoing-ipos-section .company-logo {
+        margin-bottom: 8px;
+    }
+    
+    .ongoing-ipos-section .slider-arrow {
+        width: 32px;
+        height: 32px;
+        top: 40%;
+    }
+    
+    .ongoing-ipos-section .slider-arrow .arrow-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* Enhance pagination dots for better visibility */
+    .ongoing-ipos-section .dot {
+        width: 8px;
+        height: 8px;
+        margin: 0 5px;
+    }
+}

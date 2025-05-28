@@ -1,0 +1,1017 @@
+/* Navbar styles for BLUESTOCK website */
+
+/* Navbar container */
+.navbar {
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    height: 124px;
+    border-bottom: 1px solid #eee;
+    left: 0;
+    right: 0;
+    overflow-x: hidden;
+}
+
+/* Container for all navbar elements */
+.navbar .container {
+    max-width: auto;
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 30px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Hide mobile menu elements on desktop */
+.mobile-toggle-container,
+.menu-toggle-btn,
+.mobile-menu {
+    display: none; /* Hidden by default on desktop */
+}
+
+/* Style for the menu toggle button */
+.menu-toggle-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: none;
+    position: relative;
+    width: 25px;
+    height: 25px;
+}
+
+.menu-toggle-btn:focus {
+    outline: none;
+}
+
+.menu-icon {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Brand Section */
+.navbar .brand-container {
+    width: 300px;
+    height: 68px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Logo Section */
+.nav-logo {
+    width: 85px;
+    height: 45px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+}
+
+.logo-placeholder {
+    width: 85px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    overflow: hidden;
+}
+
+.logo-image {
+    padding-left: 10px;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Brand name - BLUESTOCK text */
+.brand-name {
+    font-size: 45px;
+    font-weight: 700;
+    line-height: 100%;
+    letter-spacing: 0;
+    color: #1E1E1E;
+    margin-left: 15px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Navigation links - positioned individually */
+/* Navigation Links Container */
+.navbar .nav-links-container {
+    position: relative;
+    height: 25px;
+    display: flex;
+    justify-content: center; /* Center the links horizontally */
+    gap: 30px; /* Spacing between links */
+    z-index: 10;
+    flex: 1;
+    max-width: 600px;
+    margin: 0 20px;
+}
+
+/* Common styles for all nav links */
+.ipo-link, .community-link, .products-link, .brokers-link, .live-news-link-container {
+    position: relative; /* Change from absolute to relative */
+    height: 25px;
+    z-index: 10;
+    top: 0; /* Reset top position as it's handled by the container */
+    left: 0; /* Reset left position as it's handled by the flex layout */
+    padding: 0 10px; /* Add some horizontal padding */
+    display: flex;
+    align-items: center;
+}
+
+/* Individual link widths */
+.ipo-link {
+    width: 28px;
+}
+
+.community-link {
+    width: 94px;
+}
+
+.products-link {
+    width: 93px;
+}
+
+.brokers-link {
+    width: 83px;
+}
+
+.live-news-link-container {
+    width: 140px; /* Increased width to accommodate both elements */
+    white-space: nowrap; /* Prevent text wrapping */
+    display: flex;
+    align-items: center;
+}
+
+/* Link text styling - common for all */
+.ipo-link a, .community-link a, .products-link a, .brokers-link a, .live-news-link-container a {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    color: #9A9A9A;
+    text-decoration: none;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    white-space: nowrap; /* Prevent text wrapping for all links */
+}
+
+/* Hover and active states */
+.ipo-link a:hover, .community-link a:hover, .products-link a:hover, .brokers-link a:hover,
+.ipo-link a.active, .community-link a.active, .products-link a.active, .brokers-link a.active {
+    color: #5640ff;
+}
+
+/* Icon styling */
+.products-link a i, .brokers-link a i {
+    margin-left: 4px;
+    font-size: 12px;
+}
+
+/* Dropdown indicators */
+.dropdown-arrow, .external-arrow {
+    font-size: 14px;
+    display: inline-block;
+    margin-left: 3px;
+    font-weight: bold;
+}
+
+/* Additional icon styling - from styles.css */
+.products-link a i, .brokers-link a i {
+    margin-left: 4px;
+    font-size: 12px;
+}
+
+/* NEW button */
+.new-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 16px;
+    background-color: #3F52FF;
+    border-radius: 2px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 100%;
+    color: #FFFFFF;
+    text-decoration: none;
+    letter-spacing: 0;
+    padding: 0;
+    margin-left: 3px; /* Exactly 3px spacing from LIVE NEWS as requested */
+    margin-right: 15px;
+    flex-shrink: 0; /* Prevent the button from shrinking */
+    z-index: 5; /* Ensure it appears above other elements */
+}
+
+/* Alternative positioning for NEW button from styles.css */
+.live-news-link-container .new-button {
+    position: relative;
+}
+
+/* Badge styles */
+.badge {
+    background-color: #ff4757;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+/* Dots icon next to signup button */
+.dots-icon {
+    width: 25px;
+    height: 25px;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+/* Button styling */
+.btn {
+    display: inline-block;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    text-align: center;
+    padding: 8px 18px;
+    border-radius: 5px;
+    margin-left: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    height: 36px;
+    display: flex;
+    align-items: center;
+}
+
+.btn-outline {
+    border: 1px solid #ddd;
+    color: #555;
+}
+
+.btn-outline:hover {
+    background-color: #f8f8f8;
+}
+
+.btn-primary {
+    background-color: #5640ff;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #4733d6;
+}
+
+/* Right area with buttons and menu */
+.nav-right-area {
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+/* Dots icon next to signup button */
+.dots-icon {
+    width: 25px;
+    height: 25px;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+/* Menu toggle button - visible on all screen sizes */
+.menu-toggle {
+    width: 25px;
+    height: 25px;
+    background: transparent; /* Transparent background */
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    position: relative; 
+    z-index: 9999;
+    display: block; /* Now visible on all screen sizes */
+    margin-left: 20px;
+    align-self: center;
+    transition: transform 0.3s;
+}
+
+.menu-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Menu icon styling */
+.menu-icon {
+    display: block;
+    transition: all 0.3s ease;
+    width: 25px;
+    height: 25px;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+.nav-right-area .menu-icon {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Desktop/mobile classes and toggle button styles have been removed */
+
+/* Mobile menu styles have been removed */
+
+/* Large screens but not desktop */
+@media (max-width: 1400px) {
+    .brand-name {
+        font-size: 36px;
+    }
+    
+    .nav-links-container {
+        gap: 20px;
+    }
+}
+
+/* Tablet and smaller screens */
+@media (max-width: 1200px) {
+    .brand-name {
+        font-size: 30px;
+        margin-left: 15px;
+    }
+    
+    .nav-links-container {
+        gap: 15px;
+    }
+    
+    .ipo-link a, .community-link a, .products-link a, .brokers-link a, .live-news-link-container a {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 992px) {
+    /* General responsive behavior for tablet and below */
+    .desktop-only:not(button.menu-toggle) {
+        display: none;
+    }
+    
+    .mobile-only {
+        display: block;
+    }
+    
+    /* Navbar height adjustment for tablet */
+    .navbar {
+        height: 80px;
+    }
+    
+    /* Adjust brand container and logo size for tablet */
+    .brand-container {
+        left: 30px;
+        top: 15px;
+    }
+    
+    /* Mobile menu display */
+    .menu-toggle {
+        display: block;
+        position: absolute;
+        top: 25px;
+        right: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile specific adjustments */
+    .desktop-only:not(button.menu-toggle) {
+        display: none;
+    }
+    
+    .mobile-only {
+        display: block;
+    }
+    
+    /* Navbar height adjustment for mobile */
+    .navbar {
+        height: 57px;
+        overflow: visible;
+    }
+    
+    /* Keep desktop toggle button visible on mobile */
+    button.menu-toggle.desktop-only {
+        display: block;
+        position: absolute;
+        top: 16px;
+        right: 20px;
+    }
+    
+    /* Adjust brand container for mobile */
+    .brand-container {
+        width: 161px;
+        height: 37px;
+        left: 9px;
+        top: 10px;
+    }
+    
+    /* Adjust logo size for mobile */
+    .nav-logo {
+        width: 53px;
+        height: 28px;
+    }
+    
+    /* Adjust logo placeholder for mobile */
+    .logo-placeholder {
+        width: 53px;
+        height: 28px;
+    }
+    
+    /* Adjust brand name for mobile */
+    .brand-name {
+        font-size: 25px;
+        font-weight: 600;
+        left: 65px;
+        top: 3px;
+    }
+    
+    /* Prevent body scrolling when mobile menu is open */
+    body.menu-open {
+        overflow: hidden;
+    }
+    
+    /* Mobile toggle button styling */
+    button.menu-toggle.mobile-only {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Media queries for responsive design */
+
+/* Large screens but not desktop */
+@media (max-width: 1400px) {
+    .brand-name {
+        font-size: 36px;
+    }
+    
+    .nav-links-container {
+        gap: 20px;
+    }
+    
+    /* Base font size for desktop navigation */
+    .ipo-link a, .community-link a, .products-link a, .brokers-link a, .live-news-link-container a {
+        font-size: 15px;
+    }
+}
+
+/* Tablet and smaller screens */
+@media (max-width: 1200px) {
+    .brand-name {
+        font-size: 30px;
+        margin-left: 15px;
+    }
+    
+    .nav-links-container {
+        gap: 15px;
+    }
+    
+    /* Slightly reduced font size for tablets */
+    .ipo-link a, .community-link a, .products-link a, .brokers-link a, .live-news-link-container a {
+        font-size: 14px;
+    }
+}
+
+/* Mobile View Styles */
+@media (max-width: 992px) {
+    .navbar {
+        height: 80px;
+    }
+    
+    .container {
+        justify-content: space-between;
+    }
+    
+    .menu-toggle {
+        display: block !important; /* Force display on mobile */
+    }
+    
+    .nav-links-container.desktop-only {
+        display: none;
+    }
+    
+    .new-button.desktop-only {
+        display: none;
+    }
+    
+    /* Font size for tablet-mobile navigation (as specified) */
+    .mobile-menu .mobile-nav-links a, 
+    .mobile-menu .nav-links-container a {
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 14px !important; /* As requested by user */
+        color: #1E1E1E !important;
+        display: block !important;
+        align-items: center !important;
+        width: 100% !important;
+        padding: 2px 2px !important; /* Significantly reduced padding */
+        text-decoration: none !important;
+        white-space: nowrap !important;
+        position: static !important;
+        margin: 0 !important; /* No margin */
+        line-height: 1.2 !important; /* Tighter line height */
+    }
+    
+    /* Mobile menu container */
+    .mobile-menu {
+        display: none; /* Hide completely by default */
+        position: fixed;
+        top: 80px; /* Updated to match navbar height */
+        left: 0;
+        width: 100%;
+        height: 0; /* Start with zero height */
+        background-color: white;
+        transition: all 0.3s ease;
+        overflow: hidden; /* Hide overflow initially */
+        z-index: 1001;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        padding: 0;
+        opacity: 0;
+        box-sizing: border-box;
+    }
+    
+    /* Mobile menu when shown */
+    .mobile-menu.show {
+        display: block; /* Show when active */
+        height: calc(100vh - 80px); /* Height of viewport minus navbar */
+        padding: 20px 25px; 
+        overflow-y: auto; /* Allow scrolling when expanded */
+        opacity: 1;
+        visibility: visible; /* Make the menu visible when active */
+    }
+    
+    /* Style when menu is open to prevent background scrolling */
+    body.menu-open {
+        overflow: hidden;
+    }
+    
+    /* Mobile nav links styling */
+    .mobile-menu .nav-links-container.mobile-nav-links,
+    .mobile-menu .mobile-nav-links {
+        display: flex !important;
+        flex-direction: column;
+        width: 100%;
+        background-color: white;
+        padding: 20px 0; /* Add vertical padding */
+        margin-bottom: 20px;
+        box-sizing: border-box;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* Make sure all items are visible */
+    .mobile-menu .nav-links-container > div {
+        display: block !important;
+    }
+    
+    /* Style each link container in mobile view */
+    .mobile-menu .nav-links-container > div,
+    .mobile-menu .mobile-nav-links > div {
+        margin: 12px 0;
+        width: 100%;
+        padding: 0 15px; /* Increased horizontal padding for each navigation item */
+        box-sizing: border-box;
+        display: block !important;
+        position: static !important;
+        height: auto !important;
+        min-height: 40px;
+    }
+    
+    .mobile-menu .nav-links-container > div:last-child {
+        border-bottom: none;
+    }
+    
+    /* Style the link itself */
+    .mobile-menu .mobile-nav-links a,
+    .mobile-menu .nav-links-container a {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 18px;
+        color: #1E1E1E;
+        display: block !important;
+        align-items: center;
+        width: 100%;
+        padding: 10px 5px;
+        text-decoration: none;
+        white-space: nowrap;
+        position: static !important;
+    }
+    
+    .mobile-menu .mobile-nav-links a.active,
+    .mobile-menu .mobile-nav-links a:hover {
+        color: #5640ff;
+    }
+    
+    /* Mobile authentication buttons */
+    .mobile-menu .mobile-auth {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 20px;
+        padding: 15px 10px;
+        border-top: 1px solid #f0f0f0;
+    }
+    
+    .mobile-menu .mobile-auth .btn {
+        display: flex;
+        justify-content: center;
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        height: 57px;
+        overflow: visible;
+        background-color: #ffffff;
+        position: fixed !important;
+        width: 100%;
+        left: 0;
+        right: 0;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        top: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Hide the desktop navigation links and buttons in mobile view */
+    .nav-links-container,
+    .nav-right-area .btn {
+        display: none !important;
+    }
+    
+    /* Show the mobile toggle container on mobile */
+    .mobile-toggle-container {
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 15px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Show the menu toggle button on mobile */
+    .menu-toggle-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1002;
+    }
+    
+    .menu-icon {
+        display: block;
+        width: 25px;
+        height: 25px;
+    }
+    
+    .container {
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+    
+    /* Mobile menu styling */
+    .mobile-menu {
+        display: block; /* Always in the flow, but initially hidden */
+        position: fixed;
+        top: 57px; /* Match mobile navbar height */
+        left: 0;
+        width: 100%;
+        height: 0; /* Start with zero height */
+        background-color: white;
+        transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1); /* Slightly faster animation */
+        overflow: hidden;
+        z-index: 1001;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        padding: 0;
+        opacity: 0;
+        box-sizing: border-box;
+        pointer-events: none; /* Prevent interaction when closed */
+    }
+    
+    /* Show mobile menu when active */
+    .mobile-menu.show {
+        height: calc(100vh - 57px); /* Height of viewport minus navbar */
+        opacity: 1;
+        padding: 10px 15px !important; /* Further reduced padding */
+        overflow-y: auto;
+        pointer-events: auto; /* Enable interaction when open */
+    }
+    
+    /* Brand container at smaller size */
+    .brand-container {
+        width: auto;
+        height: 57px;
+        position: relative;
+    }
+    
+    /* Mobile styling for BLUESTOCK text */
+    .brand-name {
+        font-weight: 700; /* Match desktop font-weight */
+        font-size: 25px;
+        position: absolute;
+        top: 15px; /* Aligned with logo and toggle icon */
+        left: 40px; /* Appropriate distance from the logo */
+        width: 160px;
+        height: 29px;
+    }
+    
+    /* Mobile styling for logo */
+    .nav-logo {
+        width: 53px;
+        height: 28px;
+        position: absolute;
+        top: 15px;
+        left: 9px;
+    }
+    
+    .logo-placeholder {
+        width: 53px;
+        height: 28px;
+    }
+    
+    /* Mobile navigation links styling - with high specificity */
+    .mobile-nav-links,
+    .mobile-menu .mobile-nav-links,
+    .navbar .mobile-menu .mobile-nav-links {
+        display: flex !important;
+        flex-direction: column !important;
+        margin-bottom: 5px !important; /* Minimal bottom margin */
+        gap: 0 !important; /* No gap */
+    }
+    
+    /* Remove conflicting rule */
+    
+    .mobile-nav-links > div,
+    .mobile-menu .mobile-nav-links > div,
+    .mobile-menu.show .mobile-nav-links > div {
+        margin: 0 !important; /* No spacing between links */
+        width: 100% !important;
+        transition: transform 0.2s ease !important;
+        padding: 0 !important;
+    }
+    
+    /* Add subtle animation to links */
+    .mobile-menu.show .mobile-nav-links > div {
+        animation: fadeInDown 0.4s forwards;
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    
+    /* Stagger the animations for each link */
+    .mobile-menu.show .mobile-nav-links > div:nth-child(1) { animation-delay: 0.05s; }
+    .mobile-menu.show .mobile-nav-links > div:nth-child(2) { animation-delay: 0.1s; }
+    .mobile-menu.show .mobile-nav-links > div:nth-child(3) { animation-delay: 0.15s; }
+    .mobile-menu.show .mobile-nav-links > div:nth-child(4) { animation-delay: 0.2s; }
+    .mobile-menu.show .mobile-nav-links > div:nth-child(5) { animation-delay: 0.25s; }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Override for specific mobile view - highly specific to override conflicting styles */
+    .mobile-menu .mobile-nav-links a,
+    .mobile-menu.show .mobile-nav-links a,
+    .navbar .mobile-menu .mobile-nav-links a {
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 14px !important; /* Set to 14px as requested */
+        color: #1E1E1E !important;
+        display: block !important;
+        padding: 1px 0 !important; /* Minimal padding */
+        margin: 0 !important; /* No margin */
+        text-decoration: none !important;
+        transition: color 0.2s ease !important;
+        line-height: 1.1 !important; /* Very tight line height */
+    }
+    
+    /* Make sure mobile menu links are consistent with high specificity */
+    .mobile-menu .mobile-nav-links a,
+    .mobile-menu.show .mobile-nav-links a,
+    .mobile-menu .mobile-nav-links a:hover,
+    .navbar .mobile-menu .mobile-nav-links a {
+        font-size: 14px !important; /* Consistent 14px for mobile */
+        padding: 1px 0 !important;
+        margin: 0 !important;
+        line-height: 1.1 !important;
+    }
+    
+    /* Match hover effects from desktop links */
+    .mobile-nav-links a:hover,
+    .mobile-nav-links a:active,
+    .mobile-nav-links a.active {
+        color: #5640ff;
+        outline: none;
+    }
+    
+    /* Make sure NEW badge is properly styled */
+    .mobile-nav-links .new-button {
+        font-size: 11px;
+        margin-left: 5px;
+    }
+    
+    /* Mobile authentication buttons */
+    .mobile-auth {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding-top: 20px;
+        margin-top: 10px;
+        border-top: 1px solid #f0f0f0;
+        animation: fadeIn 0.5s 0.3s forwards;
+        opacity: 0;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .mobile-auth .btn {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        padding: 12px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .mobile-auth .btn:active {
+        transform: scale(0.98);
+    }
+    
+    .mobile-auth .btn:focus {
+        outline: 2px solid #5640ff;
+        outline-offset: 2px;
+    }
+    
+    /* Ensure keyboard focus is visible */
+    .mobile-menu a:focus-visible,
+    .mobile-menu .btn:focus-visible {
+        outline: 2px solid #5640ff;
+        outline-offset: 2px;
+    }
+    
+    /* Prevent scrolling when menu is open */
+    body.menu-open {
+        overflow: hidden;
+    }
+}
+
+/* Button responsive styles */
+@media (max-width: 1200px) {
+    .btn {
+        padding: 8px 14px;
+        font-size: 14px;
+    }
+}
+
+/* Small phone screens */
+@media (max-width: 480px) {
+    .navbar {
+        height: 50px;
+    }
+    
+    .brand-name {
+        font-size: 20px;
+        font-weight: 700; /* Maintain consistent font-weight */
+    }
+    
+    .nav-logo {
+        width: 40px;
+        height: 21px;
+    }
+    
+    .logo-placeholder {
+        width: 40px;
+        height: 21px;
+    }
+    
+    .mobile-menu.show {
+        display: block !important;
+        top: 50px;
+        height: calc(100vh - 50px);
+        visibility: visible !important;
+        opacity: 1 !important;
+        overflow-y: auto;
+        z-index: 9000 !important;
+    }
+}
+
+/* Mobile menu styling */
+.mobile-menu {
+    display: none; /* Hide by default */
+    position: fixed;
+    top: 57px; /* Match mobile navbar height */
+    left: 0;
+    width: 100%;
+    height: 0;
+    background-color: white;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    z-index: 1001;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    padding: 0;
+    opacity: 0;
+    box-sizing: border-box;
+}
+
+/* Show mobile menu when active */
+.mobile-menu.show {
+    display: block !important;
+    height: calc(100vh - 57px); /* Height of viewport minus navbar */
+    padding: 20px 25px;
+    visibility: visible;
+    opacity: 1;
+    overflow-y: auto;
+}
+
+/* Show the nav links and buttons when mobile menu is active */
+.mobile-menu.show ~ header .nav-links-container.mobile-active,
+.mobile-menu.show ~ header .nav-right-area.mobile-active {
+    position: absolute;
+    left: 25px;
+    display: flex !important;
+    flex-direction: column;
+    width: calc(100% - 50px);
+    visibility: visible;
+    opacity: 1;
+    z-index: 1002;
+}
+
+/* Style nav links when shown in mobile menu */
+.mobile-menu.show ~ header .nav-links-container.mobile-active {
+    top: 80px;
+}
+
+/* Style auth buttons when shown in mobile menu */
+.mobile-menu.show ~ header .nav-right-area.mobile-active {
+    top: auto;
+    bottom: 40px;
+    flex-direction: column;
+    gap: 15px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 20px;
+    margin-top: 30px;
+}
+
+/* Make individual nav links display as blocks in mobile view */
+.mobile-menu.show ~ header .nav-links-container.mobile-active > div {
+    margin: 12px 0;
+    width: 100%;
+    display: block;
+    position: static;
+    height: auto;
+}
+
+/* Style links in mobile view */
+.mobile-menu.show ~ header .nav-links-container.mobile-active a {
+    font-size: 18px;
+    color: #1E1E1E;
+    padding: 10px 0;
+}
+
+/* Make auth buttons full width in mobile view */
+.mobile-menu.show ~ header .nav-right-area.mobile-active .btn {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-left: 0;
+}

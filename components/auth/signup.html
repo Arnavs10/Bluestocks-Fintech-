@@ -1,0 +1,275 @@
+<!-- BLUESTOCK Sign Up Component -->
+<!-- This component is designed to be loaded dynamically into a container -->
+<link rel="stylesheet" href="../../styles/admin/signup.css">
+<div class="signup-container">
+    <div class="logo-container">
+        <img src="../../images/logo.png" alt="BLUESTOCK Logo" class="logo">
+        <h1 class="brand-name">BLUESTOCK</h1>
+    </div>
+    
+    <h2>Create an account</h2>
+    
+    <form id="signupForm">
+        <div class="input-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Shrutika Shinde" required>
+        </div>
+        
+        <div class="input-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="hello@bluestock.in" required>
+        </div>
+        
+        <div class="input-group">
+            <label for="password">Password</label>
+            <div class="password-input-container">
+                <input type="password" id="password" required>
+                <button type="button" id="togglePassword" class="toggle-password">
+                    <img src="../../images/eye.svg" alt="Show Password" id="eyeIcon">
+                </button>
+            </div>
+        </div>
+        
+        <div class="terms">
+            <p>By continuing, you agree to our <a href="#" class="terms-link">terms of service</a>.</p>
+        </div>
+        
+        <!-- Temporary: Removed reCAPTCHA to simplify signup flow -->
+        
+        <button type="submit" id="signupButton" class="signup-button">Sign up</button>
+        
+        <div class="divider">
+            <span>or sign up with</span>
+        </div>
+        
+        <button type="button" id="googleSignIn" class="google-button">
+            <img src="../../images/google.svg" alt="Google Icon">
+            Continue with Google
+        </button>
+        
+        <div class="signin-link">
+            Already have an account? <a href="signin" class="signin-here" id="signInLink">Sign in here</a>
+        </div>
+    </form>
+</div>
+
+<div id="errorMessage" class="error-message hidden"></div>
+
+<script>
+(function() {
+    console.log('%c SIGNUP COMPONENT LOADED', 'background: #4CAF50; color: white; font-size: 16px; padding: 4px 8px;');
+    
+    // Try to use the global Supabase client from various possible sources
+    let client;
+    
+    // Check different possible locations for the Supabase client
+    if (window.supabaseClient) {
+        client = window.supabaseClient;
+        console.log('%c USING GLOBAL SUPABASE CLIENT FROM window.supabaseClient', 'background: #3498db; color: white; font-size: 16px; padding: 4px 8px;');
+    } else if (window.bluestockRouter && window.bluestockRouter.supabase) {
+        client = window.bluestockRouter.supabase;
+        console.log('%c USING ROUTER SUPABASE CLIENT', 'background: #3498db; color: white; font-size: 16px; padding: 4px 8px;');
+    } else {
+        // Initialize a new client as fallback
+        console.log('%c NO GLOBAL CLIENT FOUND, INITIALIZING NEW CLIENT', 'background: #f39c12; color: white; font-size: 16px; padding: 4px 8px;');
+        const SUPABASE_URL = 'https://pyxqwiqvyivyopusgcey.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eHF3aXF2eWl2eW9wdXNnY2V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwOTE1NzEsImV4cCI6MjA2MzY2NzU3MX0.vJEoejN1jgHeU5hcvujKMVuWCHkIy7010N76WXg3_1s';
+        client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+    
+    // Double-check that we have a working client
+    if (!client) {
+        console.error('%c ERROR: Failed to initialize Supabase client', 'background: #e74c3c; color: white; font-size: 16px; padding: 4px 8px;');
+        document.getElementById('errorMessage').textContent = 'Authentication service unavailable';
+        document.getElementById('errorMessage').classList.remove('hidden');
+        return;
+    }
+    
+    console.log('%c USING GLOBAL SUPABASE CLIENT', 'background: #3498db; color: white; font-size: 16px; padding: 4px 8px;');
+    
+    // Get DOM elements
+    const form = document.getElementById('signupForm');
+    const signupButton = document.getElementById('signupButton');
+    const errorMessage = document.getElementById('errorMessage');
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+    
+    // Verify elements are found
+    console.log('Form found:', !!form);
+    console.log('SignupButton found:', !!signupButton);
+    console.log('ErrorMessage found:', !!errorMessage);
+    
+    // Toggle password visibility
+    if (togglePassword && passwordInput && eyeIcon) {
+        togglePassword.addEventListener('click', function() {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.src = '../../images/eye-slash.svg';
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.src = '../../images/eye.svg';
+            }
+        });
+        console.log('Password toggle handler attached');
+    }
+    
+    // Debug display function
+    function showError(message) {
+        console.error('%c ERROR: ' + message, 'background: #e74c3c; color: white; font-size: 16px; padding: 4px 8px;');
+        errorMessage.textContent = message;
+        errorMessage.classList.remove('hidden');
+    }
+                
+    // Handle form submission
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            console.log('%c FORM SUBMITTED', 'background: #ff6b6b; color: white; font-size: 16px; padding: 4px 8px;');
+            e.preventDefault();
+            
+            // Get form values
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            console.log('Form values:', { name, email, password: '***REDACTED***' });
+            
+            // Basic validation with clear console output
+            if (!name || !email || !password) {
+                console.error('%c VALIDATION ERROR: Empty fields', 'background: #e74c3c; color: white; font-size: 16px; padding: 4px 8px;');
+                errorMessage.textContent = 'Please fill in all fields';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+            
+            // Email validation
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                console.error('%c VALIDATION ERROR: Invalid email format', 'background: #e74c3c; color: white; font-size: 16px; padding: 4px 8px;');
+                errorMessage.textContent = 'Please enter a valid email address';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+            
+            // Password validation with clear error display
+            console.log('Password length check:', password.length);
+            if (password.length < 6) {
+                console.error('%c VALIDATION ERROR: Password too short', 'background: #e74c3c; color: white; font-size: 16px; padding: 4px 8px;');
+                errorMessage.textContent = 'Password must be at least 6 characters';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+            
+            // Show loading state
+            signupButton.disabled = true;
+            signupButton.textContent = 'Signing up...';
+            errorMessage.classList.add('hidden');
+            
+            try {
+                console.log('%c ATTEMPTING SIGNUP', 'background: #3498db; color: white; font-size: 16px; padding: 4px 8px;');
+                
+                console.log('Creating user with: ', { email, name, password: '***HIDDEN***' });
+                
+                // Basic direct approach to create user
+                const { data, error } = await client.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: name
+                        }
+                    }
+                });
+                
+                console.log('Signup API call complete');
+                
+                console.log('%c SIGNUP RESULT', 'background: #2ecc71; color: white; font-size: 16px; padding: 4px 8px;');
+                
+                if (error) {
+                    console.error('Signup error:', error);
+                    
+                    // Handle specific error cases with more user-friendly messages
+                    if (error.message.includes('invalid')) {
+                        // Email format or domain restriction errors
+                        errorMessage.textContent = 'This email address cannot be used. Please try with a different email.';
+                    } else if (error.message.includes('already registered')) {
+                        // Email already in use
+                        errorMessage.textContent = 'This email is already registered. Please sign in instead.';
+                    } else if (error.message.includes('password')) {
+                        // Password requirements
+                        errorMessage.textContent = 'Your password does not meet the requirements. It should be at least 6 characters.';
+                    } else {
+                        // Generic error message as fallback
+                        errorMessage.textContent = error.message;
+                    }
+                    
+                    errorMessage.classList.remove('hidden');
+                } else if (data && data.user) {
+                    console.log('Signup successful, user ID:', data.user.id);
+                    alert('Account created successfully! Please check your email to confirm your account.');
+                    
+                    // Navigate to signin using SPA routing
+                    setTimeout(() => {
+                        console.log('Redirecting to signin via SPA routing');
+                        if (window.bluestockRouter) {
+                            // Use router if available
+                            window.bluestockRouter.navigate('signin');
+                        } else {
+                            // Fallback to hash-based routing
+                            window.location.hash = '#/signin';
+                        }
+                    }, 1000);
+                } else {
+                    console.warn('Unknown response format:', data);
+                    errorMessage.textContent = 'Unexpected response from server';
+                    errorMessage.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Exception during signup:', error);
+                errorMessage.textContent = error.message || 'An unexpected error occurred';
+                errorMessage.classList.remove('hidden');
+            } finally {
+                signupButton.disabled = false;
+                signupButton.textContent = 'Sign up';
+            }
+        });
+    }
+    // Handle Google Sign In
+    const googleSignIn = document.getElementById('googleSignIn');
+    if (googleSignIn) {
+        googleSignIn.addEventListener('click', async function() {
+            console.log('%c GOOGLE SIGNIN CLICKED', 'background: #DB4437; color: white; font-size: 16px; padding: 4px 8px;');
+            
+            try {
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/signin'
+                    }
+                });
+                
+                if (error) {
+                    console.error('Google sign-in error:', error);
+                    errorMessage.textContent = error.message;
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Exception during Google sign-in:', error);
+                errorMessage.textContent = error.message || 'Failed to sign in with Google';
+                errorMessage.classList.remove('hidden');
+            }
+        });
+    }
+    
+    // Handle signin link click directly
+    const signInLink = document.getElementById('signInLink');
+    if (signInLink) {
+        signInLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Navigating to signin page with direct navigation');
+            window.location.href = 'signin';
+        });
+    }
+})();
+</script>
+<!-- End of Sign Up Component -->

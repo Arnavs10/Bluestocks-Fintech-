@@ -1,0 +1,102 @@
+/* Reset and base styles */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    min-width: 100%;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    max-width: 100vw;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+/* Container */
+.container {
+    width: 100%;
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+    height: 124px;
+    box-sizing: border-box;
+}
+
+/* NAVBAR STYLES HAVE BEEN MOVED TO navbar.css */
+/* This ensures no CSS conflicts with the component-based structure */
+
+/* Content placeholder (for demo) */
+.content-placeholder {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+    /* Force body to have relative positioning for absolute elements */
+    body {
+        position: relative;
+    }
+
+    /* Container width adjustment for tablet */
+    .container {
+        max-width: 992px;
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    html, body {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+    
+    .container {
+        width: 100%;
+        max-width: 768px;
+        padding: 0 15px;
+        position: relative;
+    }
+    
+    /* All navbar-related styles have been moved to navbar.css */
+}
+
+@media (max-width: 576px) {
+    .btn {
+        padding: 6px 14px;
+        font-size: 13px;
+    }
+}
