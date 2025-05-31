@@ -13,6 +13,7 @@ class AuthRouter {
             'signup': '/components/auth/signup.html',
             'dashboard': '/components/dashboard/dashboard.html',
             'ipo': '/components/ipo/ipo.html',
+            'upcoming-ipo': '/components/ipo/all-upcoming-ipo.html',
             'home': '/index.html'
         };
         

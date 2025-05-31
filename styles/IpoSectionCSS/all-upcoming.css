@@ -1,0 +1,425 @@
+/* All Upcoming IPOs Page Styles */
+
+.upcoming-ipos-section {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: 'Poppins', sans-serif;
+    overflow: visible;
+}
+
+.upcoming-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+}
+
+.section-title h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1E1E1E;
+    margin: 0 0 8px 0;
+}
+
+.section-title p {
+    font-size: 14px;
+    color: #555;
+    max-width: 700px;
+    margin: 0;
+}
+
+.back-btn {
+    background-color: #4169E1;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+    background-color: #3050C5;
+}
+
+/* IPO Grid Layout */
+.upcoming-ipos-section .ipo-slider-container {
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.upcoming-ipos-section .ipo-cards-wrapper {
+    display: flex;
+    gap: 20px;
+    overflow-x: visible;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0 auto;
+    justify-content: flex-start;
+}
+
+/* Card Styling - Copied from upcoming.css */
+.ipo-card {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 24px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.ipo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(65, 105, 225, 0.15);
+    border-color: rgba(65, 105, 225, 0.2);
+}
+
+/* Company Info Styling */
+.company-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Desktop layout with logo left and name right */
+@media screen and (min-width: 993px) {
+    .company-info {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        gap: 15px;
+    }
+    
+    .company-info h3 {
+        margin: 0;
+    }
+}
+
+.ipo-card:hover .company-info {
+    transform: scale(1.02);
+}
+
+.company-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 8px;
+    background-color: transparent;
+    transition: transform 0.3s ease;
+    margin-bottom: 10px;
+}
+
+/* Remove bottom margin for desktop view */
+@media screen and (min-width: 993px) {
+    .company-logo {
+        margin-bottom: 0;
+        width: 50px;
+        height: 50px;
+    }
+}
+
+.ipo-card:hover .company-logo {
+    transform: scale(1.05);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.company-info h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #467CFF;
+    margin: 8px 0 4px 0;
+    transition: color 0.3s ease;
+}
+
+.ipo-card:hover .company-info h3 {
+    color: #2D62FF;
+}
+
+/* IPO Details Grid */
+.ipo-details-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+}
+
+.detail-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: left;
+    width: 100%;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    text-transform: uppercase;
+}
+
+.ipo-card:hover .detail-label {
+    color: #555;
+}
+
+.detail-value {
+    font-size: 15px;
+    color: #1E1E1E;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.ipo-card:hover .detail-value {
+    transform: scale(1.02);
+    color: #000;
+}
+
+/* IPO Tags */
+.ipo-tags {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    transition: all 0.3s ease;
+    justify-content: flex-start;
+}
+
+.ipo-card:hover .ipo-tags {
+    transform: translateY(2px);
+}
+
+.tag {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.tag.rhp {
+    background-color: #F2F7FF;
+    color: #4169E1;
+}
+
+.tag.drhp {
+    background-color: #F0F7FF;
+    color: #4169E1;
+}
+
+.ipo-card:hover .tag {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(65, 105, 225, 0.1);
+}
+
+.ipo-card:hover .tag.rhp {
+    background-color: #E6F0FF;
+    border-color: rgba(65, 105, 225, 0.2);
+}
+
+.ipo-card:hover .tag.drhp {
+    background-color: #E8F2FF;
+    border-color: rgba(65, 105, 225, 0.15);
+}
+
+/* FAQ Section Styles */
+.faq-section {
+    padding: 40px 0;
+    max-width: 1200px;
+    margin: 40px auto 0;
+}
+
+.faq-section h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1E1E1E;
+    margin-bottom: 12px;
+}
+
+.faq-description {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.faq-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.faq-item {
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.faq-question {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background-color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+.faq-question:hover {
+    background-color: #f9f9f9;
+}
+
+.faq-question h3 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #1E1E1E;
+    margin: 0;
+}
+
+.faq-toggle {
+    font-size: 24px;
+    color: #4169E1;
+    font-weight: 500;
+}
+
+.faq-answer {
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.faq-answer.active {
+    padding: 0 20px 20px;
+    max-height: 500px;
+}
+
+.faq-answer p {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.faq-answer ul {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.faq-answer li {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 1200px) {
+    .upcoming-ipos-section .ipo-cards-wrapper {
+        gap: 20px;
+    }
+    
+    .ipo-card {
+        width: calc(50% - 10px);
+        flex: 0 0 calc(50% - 10px);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .upcoming-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .upcoming-ipos-section .ipo-cards-wrapper {
+        padding: 20px;
+        gap: 16px;
+    }
+    
+    .ipo-card {
+        width: 100%;
+        flex: 0 0 100%;
+        margin: 0 0 16px 0;
+    }
+    
+    .detail-row {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+/* Mobile specific styles */
+@media screen and (max-width: 480px) {
+    .upcoming-ipos-section {
+        padding: 20px 10px;
+    }
+    
+    .upcoming-ipos-section .ipo-slider-container {
+        padding: 0;
+    }
+    
+    .upcoming-ipos-section .ipo-cards-wrapper {
+        gap: 15px;
+        padding: 15px;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .ipo-card {
+        padding: 16px;
+        width: 100%;
+        flex: 0 0 100%;
+        margin-bottom: 15px;
+    }
+    
+    .section-title h2 {
+        font-size: 20px;
+    }
+    
+    .section-title p {
+        font-size: 12px;
+    }
+    
+    .detail-row {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+    }
+    
+    .detail-label {
+        font-size: 10px;
+    }
+    
+    .detail-value {
+        font-size: 13px;
+    }
+    
+    .tag {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+    
+    .slider-arrow {
+        display: none;
+    }
+}

@@ -346,6 +346,10 @@
                     }, 200);
                 }
                 // Route to specific content based on path - show loader for content changes
+                else if (cleanPath === 'ipo-all-upcoming') {
+                    console.log('Loading All Upcoming IPOs component');
+                    loadComponent('components/ipo/sections/all-upcoming.html', 'content-container', true);
+                }
                 else if (cleanPath.startsWith('ipo')) {
                     console.log('Loading IPO component from /ipo path');
                     loadComponent('components/ipo/ipo.html', 'content-container', true);
