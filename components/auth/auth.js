@@ -1,7 +1,10 @@
 // Initialize Supabase client
-const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // Replace with your Supabase URL
-const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your Supabase anon key
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Use the global Supabase client ONLY
+const supabase = window.supabaseClient;
+if (!supabase) {
+  alert('Authentication error: Supabase client not initialized. Please reload the page or contact support.');
+  throw new Error('Supabase client not initialized.');
+}
 
 // Check which page we're on
 const isSignin = window.location.pathname.includes('signin');
@@ -117,9 +120,13 @@ if (signinForm) {
             
             showNotification('Sign in successful, redirecting...');
             
-            // Redirect to dashboard or home
+            // Redirect to admin dashboard after successful sign-in
             setTimeout(() => {
-                window.location.href = '/';
+                if (window.bluestockRouter && typeof window.bluestockRouter.navigate === 'function') {
+                    window.bluestockRouter.navigate('admin-dashboard', true);
+                } else {
+                    window.location.href = '/admin-dashboard';
+                }
             }, 1500);
             
         } catch (error) {
@@ -237,7 +244,11 @@ window.addEventListener('DOMContentLoaded', async () => {
             if (!userError && userData) {
                 // User is already signed in, redirect to home page if on auth pages
                 if (isSignin || isSignup) {
-                    window.location.href = '/';
+                    if (window.bluestockRouter && typeof window.bluestockRouter.navigate === 'function') {
+                        window.bluestockRouter.navigate('admin-dashboard', true);
+                    } else {
+                        window.location.href = '/admin-dashboard';
+                    }
                 }
             }
         }

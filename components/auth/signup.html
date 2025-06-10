@@ -55,6 +55,8 @@
 
 <div id="errorMessage" class="error-message hidden"></div>
 
+<!-- Load Supabase JavaScript SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function() {
     console.log('%c SIGNUP COMPONENT LOADED', 'background: #4CAF50; color: white; font-size: 16px; padding: 4px 8px;');
@@ -74,7 +76,11 @@
         console.log('%c NO GLOBAL CLIENT FOUND, INITIALIZING NEW CLIENT', 'background: #f39c12; color: white; font-size: 16px; padding: 4px 8px;');
         const SUPABASE_URL = 'https://pyxqwiqvyivyopusgcey.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eHF3aXF2eWl2eW9wdXNnY2V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwOTE1NzEsImV4cCI6MjA2MzY2NzU3MX0.vJEoejN1jgHeU5hcvujKMVuWCHkIy7010N76WXg3_1s';
-        client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        client = window.supabaseClient;
+        if (!client) {
+            alert('Authentication error: Supabase client not initialized. Please reload the page or contact support.');
+            throw new Error('Supabase client not initialized.');
+        }
     }
     
     // Double-check that we have a working client

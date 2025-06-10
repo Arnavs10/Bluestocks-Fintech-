@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/png" href="images/Copy of logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bluestock</title>
@@ -15,36 +16,16 @@
     <!-- Inline styles for responsive design and page transitions -->
     <!-- Include Supabase client directly from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Supabase authentication check -->
+    <!-- Initialize Supabase client ONCE globally with persistSession: true -->
     <script>
-        // Initialize Supabase client directly
         const SUPABASE_URL = 'https://pyxqwiqvyivyopusgcey.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eHF3aXF2eWl2eW9wdXNnY2V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwOTE1NzEsImV4cCI6MjA2MzY2NzU3MX0.vJEoejN1jgHeU5hcvujKMVuWCHkIy7010N76WXg3_1s';
-        
-        // Initialize the client
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        console.log('Supabase client initialized in index.html');
-        
-        // Check auth state when app loads
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                // Get current user directly
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                console.log('Auth check result:', user ? 'User is signed in' : 'No user signed in');
-                
-                // Store auth state in window object for access by other scripts
-                window.userAuthenticated = !!user;
-                window.currentUser = user;
-                
-                // Handle protected routes
-                if (window.location.hash.includes('/dashboard') && !user) {
-                    window.location.hash = '#/signin';
-                }
-            } catch (error) {
-                console.error('Auth check error:', error.message);
+        window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth: {
+                persistSession: true
             }
         });
+        console.log('Supabase client initialized globally with persistSession: true');
     </script>
     
     <style>
@@ -236,87 +217,129 @@
             }
             
             // Function to load HTML components
-            function loadComponent(url, containerId, showLoading = false) {
+            async function loadComponent(url, containerId, showLoading = false) {
                 console.log(`Loading component: ${url} into #${containerId}`);
-                // Only show loader for content container (not navbar or footer)
                 if (showLoading && containerId === 'content-container') {
                     showLoader();
                 }
-                
-                return fetch(url)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Failed to load component from ${url}: ${response.status} ${response.statusText}`);
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        console.error(`Failed to fetch component: ${url}`, response.status, response.statusText);
+                        throw new Error(`HTTP error! status: ${response.status} for ${url}`);
+                    }
+                    const html = await response.text();
+
+                    const container = document.getElementById(containerId);
+                    if (!container) {
+                        console.error(`Container #${containerId} not found.`);
+                        if (showLoading && containerId === 'content-container') hideLoader();
+                        return;
+                    }
+                    container.innerHTML = html;
+
+                    // Execute scripts within the loaded component
+                    const scripts = Array.from(container.querySelectorAll('script'));
+                    console.log(`Found ${scripts.length} scripts to execute in ${url}`);
+
+                    for (let i = 0; i < scripts.length; i++) {
+                        const script = scripts[i];
+                        console.log(`Processing script ${i + 1}/${scripts.length} in ${url}:`, script.src || 'inline script');
+                        const newScript = document.createElement('script');
+                        script.getAttributeNames().forEach(attr => newScript.setAttribute(attr, script.getAttribute(attr)));
+
+                        if (script.src) {
+                            console.log(`Loading external script ${i + 1}/${scripts.length}: ${script.src}`);
+                            // For external scripts, we need to wait for them to load and execute
+                            // if subsequent scripts depend on them. This creates a Promise.
+                            await new Promise((resolve, reject) => {
+                                newScript.onload = () => {
+                                    console.log(`External script ${script.src} loaded and executed.`);
+                                    resolve();
+                                };
+                                newScript.onerror = () => {
+                                    console.error(`Error loading external script ${script.src}`);
+                                    reject(new Error(`Failed to load script: ${script.src}`));
+                                };
+                                document.head.appendChild(newScript);
+                            });
+                        } else {
+                            // For inline scripts, append and they will execute synchronously relative to this loop iteration
+                            console.log(`Executing inline script ${i + 1}/${scripts.length} in ${url}`);
+                            newScript.type = 'module'; // Ensure module context for top-level await compatibility
+                            newScript.textContent = script.textContent;
+                            // Appending to body and immediately removing is a common trick, but ensure it works for your use case.
+                            // Scripts added this way might not have access to `document.currentScript`.
+                            // A safer way for inline scripts if they don't rely on `document.currentScript` is just to append them.
+                            container.appendChild(newScript); // Append to the container to maintain context if possible
                         }
-                        return response.text();
-                    })
-                    .then(html => {
-                        const container = document.getElementById(containerId);
-                        if (!container) {
-                            throw new Error(`Container #${containerId} not found in DOM`);
-                        }
-                        
-                        container.innerHTML = html;
-                        console.log(`Successfully loaded ${url} into #${containerId}`);
-                        
-                        // Execute scripts in the loaded HTML
-                        const scripts = container.querySelectorAll('script');
-                        console.log(`Found ${scripts.length} scripts to execute in ${url}`);
-                        
-                        scripts.forEach((script, index) => {
-                            const newScript = document.createElement('script');
-                            if (script.src) {
-                                newScript.src = script.src;
-                                console.log(`Loading external script ${index+1}/${scripts.length}: ${script.src}`);
-                            } else {
-                                newScript.textContent = script.textContent;
-                                console.log(`Executing inline script ${index+1}/${scripts.length} in ${url}`);
-                            }
-                            document.head.appendChild(newScript);
-                            // Don't remove for external scripts as they need time to load
-                            if (!script.src) {
-                                document.head.removeChild(newScript);
-                            }
-                        });
-                        
-                        // Hide loader after content is loaded
-                        if (showLoading && containerId === 'content-container') {
-                            hideLoader();
-                        }
-                    })
-                    .catch(error => {
-                        console.error(`Error loading component ${url}:`, error);
-                        const container = document.getElementById(containerId);
-                        if (container) {
-                            container.innerHTML = `
-                                <div style="padding: 20px; text-align: center;">
-                                    <h2>Component Loading Error</h2>
-                                    <p>Failed to load component from ${url}</p>
-                                    <p>Error: ${error.message}</p>
-                                    <button onclick="location.reload()" style="padding: 8px 16px; margin-top: 10px;">Reload Page</button>
-                                </div>
-                            `;
-                        }
-                        
-                        // Hide loader on error
-                        if (showLoading && containerId === 'content-container') {
-                            hideLoader();
-                        }
-                    });
+                    }
+
+                    if (showLoading && containerId === 'content-container') {
+                        hideLoader();
+                    }
+                    console.log(`Successfully loaded ${url} into #${containerId}`);
+
+                } catch (error) {
+                    console.error(`Error loading component ${url}:`, error);
+                    const container = document.getElementById(containerId);
+                    if (container) {
+                        container.innerHTML = `
+                            <div style="padding: 20px; text-align: center; color: red;">
+                                <h2>Component Load Error</h2>
+                                <p>Failed to load component from ${url}</p>
+                                <p>Error: ${error.message}</p>
+                                <button onclick="location.reload()" style="padding: 8px 16px; margin-top: 10px;">Reload Page</button>
+                            </div>
+                        `;
+                    }
+                    if (showLoading && containerId === 'content-container') {
+                        hideLoader();
+                    }
+                }
             }
             
-            // Function to determine which component to load based on URL
-            function handleRouting() {
+            // Global handleRouting function that can be called from other scripts
+            window.handleRouting = function(forceReload = false) {
+                // Don't process routing if we're in the middle of a redirect, unless force reload
+                if (!forceReload && window.authState && window.authState.isRedirecting) {
+                    console.log('Routing skipped - redirect in progress');
+                    return;
+                }
+                
                 const path = window.location.pathname.toLowerCase();
                 
                 // Extract route without leading slash for more consistent matching
                 const cleanPath = path.replace(/^\/+/, '');
                 
-                // Check if we're on an auth page
-                const isAuthPage = cleanPath.startsWith('signin') || cleanPath.startsWith('signup');
+                // Store current route in session storage to help with page reloads
+                sessionStorage.setItem('currentRoute', cleanPath);
                 
-                // Only load navbar and footer if not on auth pages
-                if (!isAuthPage) {
+                // Check if we're on an auth page
+                const isAuthPage = cleanPath.startsWith('signin') || cleanPath.startsWith('signup') ||
+                                 cleanPath.startsWith('forgot-password') || cleanPath.startsWith('reset-password');
+                const isDashboardPage = cleanPath.startsWith('dashboard') || cleanPath.startsWith('admin-dashboard');
+                
+                // Debug info to help diagnose routing issues
+                console.log('Routing - Path:', path, 'Clean path:', cleanPath, 'Auth page:', isAuthPage, 'Dashboard:', isDashboardPage);
+                console.log('Auth state:', window.authState ? 
+                          `Authenticated: ${window.authState.isAuthenticated}, Admin: ${window.authState.isAdmin}, Redirecting: ${window.authState.isRedirecting}` : 
+                          `Legacy Auth: ${window.userAuthenticated}`);
+                
+                // Get authentication state from the central state management system
+                const isAuthenticated = window.authState ? window.authState.isAuthenticated : window.userAuthenticated;
+                const isAdmin = window.authState ? window.authState.isAdmin : true; // Default to true for legacy
+                
+                // Handle navbar and footer visibility
+                if (isAuthPage || isDashboardPage) {
+                    // Hide navbar and footer for auth pages and dashboard
+                    document.getElementById('navbar-container').style.display = 'none';
+                    document.getElementById('footer-container').style.display = 'none';
+                } else {
+                    // Show and load navbar and footer for other pages
+                    document.getElementById('navbar-container').style.display = 'block';
+                    document.getElementById('footer-container').style.display = 'block';
                     loadComponent('components/navbar.html', 'navbar-container', false);
                     loadComponent('components/footer.html', 'footer-container', false);
                     
@@ -324,14 +347,7 @@
                     setTimeout(() => {
                         highlightActiveLink(path);
                     }, 100);
-                } else {
-                    // Hide navbar and footer containers for auth pages
-                    document.getElementById('navbar-container').style.display = 'none';
-                    document.getElementById('footer-container').style.display = 'none';
                 }
-                
-                // Debug the current path
-                console.log('Current path:', path, 'Clean path:', cleanPath);
                 
                 // If we're at the root path, redirect to ipo
                 if (path === '/' || path === '') {
@@ -357,6 +373,17 @@
                     loadComponent('components/community/community.html', 'content-container', true);
                 } else if (cleanPath.startsWith('products')) {
                     loadComponent('components/products/products.html', 'content-container', true);
+                } else if (cleanPath === 'signin') {
+                    loadComponent('components/auth/signin.html', 'content-container', true);
+                }
+                else if (cleanPath === 'signup') {
+                    loadComponent('components/auth/signup.html', 'content-container', true);
+                }
+                else if (cleanPath === 'forgot-password') {
+                    loadComponent('components/auth/forgot-password.html', 'content-container', true);
+                }
+                else if (cleanPath === 'reset-password') {
+                    loadComponent('components/auth/reset-password.html', 'content-container', true);
                 } else if (cleanPath.startsWith('brokers')) {
                     loadComponent('components/brokers/brokers.html', 'content-container', true);
                 } else if (cleanPath.startsWith('live-news')) {
@@ -365,24 +392,86 @@
                     // Load home page
                     loadComponent('components/home.html', 'content-container', true);
                 } else if (cleanPath.startsWith('signin')) {
+                    // If already authenticated, redirect to dashboard
+                    if (isAuthenticated) {
+                        console.log('User already authenticated, redirecting from signin to admin dashboard');
+                        if (window.authState) window.authState.isRedirecting = true;
+                        window.history.pushState({}, '', 'admin-dashboard');
+                        // Call handleRouting again with force flag to avoid redirect loops
+                        setTimeout(() => { 
+                            if (window.authState) window.authState.isRedirecting = false;
+                            window.handleRouting(true);
+                        }, 100);
+                        return;
+                    }
+                    
+                    // Clear admin dashboard loaded flag when on signin page
+                    sessionStorage.removeItem('adminDashboardLoaded');
                     loadComponent('components/auth/signin.html', 'content-container', true);
                 } else if (cleanPath.startsWith('signup')) {
+                    // If already authenticated, redirect to dashboard
+                    if (isAuthenticated) {
+                        console.log('User already authenticated, redirecting from signup to admin dashboard');
+                        if (window.authState) window.authState.isRedirecting = true;
+                        window.history.pushState({}, '', 'admin-dashboard');
+                        // Call handleRouting again with force flag to avoid redirect loops
+                        setTimeout(() => { 
+                            if (window.authState) window.authState.isRedirecting = false;
+                            window.handleRouting(true);
+                        }, 100);
+                        return;
+                    }
+                    
+                    // Clear admin dashboard loaded flag when on signup page
+                    sessionStorage.removeItem('adminDashboardLoaded');
                     loadComponent('components/auth/signup.html', 'content-container', true);
-                } else if (cleanPath.startsWith('dashboard')) {
-                    // Check if user is authenticated before loading dashboard
-                    if (window.userAuthenticated) {
-                        loadComponent('components/dashboard/dashboard.html', 'content-container', true);
+                } else if (cleanPath.startsWith('admin-dashboard')) {
+                    // For admin-dashboard route - check authentication
+                    if (isAuthenticated) {
+                        console.log('Loading admin dashboard for authenticated user');
+                        // Set a flag to indicate we've loaded the admin dashboard to prevent reloads
+                        sessionStorage.setItem('adminDashboardLoaded', 'true');
+                        loadComponent('components/dashboard/admin-dashboard.html', 'content-container', true);
                     } else {
-                        // Redirect to signin if not authenticated
+                        // Not authenticated, redirect to signin
+                        console.log('Not authenticated, redirecting to signin from admin-dashboard');
+                        if (window.authState) window.authState.isRedirecting = true;
                         window.history.pushState({}, '', 'signin');
-                        loadComponent('components/auth/signin.html', 'content-container', true);
+                        // Call handleRouting again with force flag to avoid redirect loops
+                        setTimeout(() => { 
+                            if (window.authState) window.authState.isRedirecting = false;
+                            window.handleRouting(true);
+                        }, 100);
+                    }
+                } else if (cleanPath.startsWith('dashboard')) {
+                    // For dashboard route - all authenticated users treated as admins
+                    if (isAuthenticated) {
+                        // Redirect to admin dashboard instead
+                        console.log('Authenticated user on dashboard route, redirecting to admin dashboard');
+                        if (window.authState) window.authState.isRedirecting = true;
+                        window.history.pushState({}, '', 'admin-dashboard');
+                        // Call handleRouting again with force flag to avoid redirect loops
+                        setTimeout(() => { 
+                            if (window.authState) window.authState.isRedirecting = false;
+                            window.handleRouting(true);
+                        }, 100);
+                    } else {
+                        // Not authenticated, redirect to signin
+                        console.log('Not authenticated, redirecting to signin from dashboard');
+                        if (window.authState) window.authState.isRedirecting = true;
+                        window.history.pushState({}, '', 'signin');
+                        // Call handleRouting again with force flag to avoid redirect loops
+                        setTimeout(() => { 
+                            if (window.authState) window.authState.isRedirecting = false;
+                            window.handleRouting(true);
+                        }, 100);
                     }
                 } else {
                     // Default to ipo page for any other path
                     window.history.pushState({}, '', 'ipo');
                     loadComponent('components/ipo/ipo.html', 'content-container', true);
                 }
-            }
+            };
             
             // Function to highlight active link in navbar
             function highlightActiveLink(path) {
@@ -437,14 +526,14 @@
                     // Update URL without refreshing page
                     window.history.pushState({}, '', href);
                     
-                    // Handle routing based on new URL
-                    handleRouting();
+                    // Use the global handleRouting function
+                    window.handleRouting();
                 }
             });
             
             // Handle back/forward browser navigation
             window.addEventListener('popstate', function() {
-                handleRouting();
+                window.handleRouting();
             });
         });
     </script>

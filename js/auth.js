@@ -1,20 +1,47 @@
 // Authentication functions for Bluestock
 // This file uses the Supabase client loaded from CDN
 
-// Initialize Supabase client - only if not already initialized
+// Global state management
+window.authState = {
+  initialized: false,  // Has auth been initialized?
+  user: null,          // Current user object
+  isAuthenticated: false, // Is user authenticated?
+  isAdmin: true,       // Is user admin? (Default true for now as specified)
+  isRedirecting: false // Are we in the middle of a redirect?
+};
+
+// Use the global Supabase client ONLY
 if (!window.supabaseClient) {
-  const SUPABASE_URL = 'https://pyxqwiqvyivyopusgcey.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eHF3aXF2eWl2eW9wdXNnY2V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwOTE1NzEsImV4cCI6MjA2MzY2NzU3MX0.vJEoejN1jgHeU5hcvujKMVuWCHkIy7010N76WXg3_1s';
-  window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  console.log('%c SUPABASE CLIENT INITIALIZED IN AUTH.JS', 'background: #3498db; color: white; font-size: 14px; padding: 3px 6px;');
+  alert('Authentication error: Supabase client not initialized. Please reload the page or contact support.');
+  throw new Error('Supabase client not initialized.');
 }
 
-// Check for Supabase client on page load
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('%c AUTH.JS LOADED', 'background: #2ecc71; color: white; font-size: 14px; padding: 3px 6px;');
-  // Check auth state
-  setTimeout(checkAuthState, 500); // Small delay to ensure client is initialized
+// Check for Supabase client on page load - initialize only once
+if (!window.authState.initialized) {
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('%c AUTH.JS LOADED', 'background: #2ecc71; color: white; font-size: 14px; padding: 3px 6px;');
+    // Wait for Supabase to restore session before checking auth state
+    window.supabaseClient.auth.onAuthStateChange((event, session) => {
+  console.log('[Supabase] onAuthStateChange event:', event);
+  console.log('[Supabase] Session from event:', session);
+  if (event === 'INITIAL_SESSION') {
+    checkAuthState().then(() => {
+      if (window.authState.isAuthenticated) {
+  const currentPath = window.location.pathname.replace(/^\/+/, '').toLowerCase();
+  if (currentPath === 'signin' || currentPath === 'signin.html') {
+    console.log('[Auth Debug] Authenticated user on signin page, redirecting to /admin-dashboard');
+    if (window.bluestockRouter && typeof window.bluestockRouter.navigate === 'function') {
+      window.bluestockRouter.navigate('admin-dashboard', true);
+    } else {
+      window.location.href = '/admin-dashboard';
+    }
+  }
+}
+    });
+  }
 });
+  });
+}
 
 // Get the Supabase client instance
 function getClient() {
@@ -26,31 +53,96 @@ function getClient() {
   }
 }
 
-// Check if user is already logged in
+// Check if user is already logged in (runs on page load and route change)
 async function checkAuthState() {
-  const user = await getCurrentUser();
-  
-  // Store auth state in window object for access by other scripts
-  window.userAuthenticated = !!user;
-  window.currentUser = user;
-  
-  const currentPath = window.location.pathname;
-  
-  if (user) {
-    console.log('%c USER AUTHENTICATED:', 'background: #27ae60; color: white; font-size: 14px; padding: 3px 6px;', user.email);
-    // If we're on the sign-in or sign-up page and already logged in, redirect to dashboard
-    if (currentPath.includes('/signin.html') || currentPath.includes('/signup.html')) {
-      console.log('Redirecting to dashboard (already authenticated)');
-      window.location.href = '../dashboard/dashboard.html';
-    }
-  } else {
-    console.log('%c NO USER AUTHENTICATED', 'background: #e74c3c; color: white; font-size: 14px; padding: 3px 6px;');
-    // If we're on a protected page and not logged in, redirect to sign-in
-    if (currentPath.includes('/dashboard')) {
-      console.log('Redirecting to signin (not authenticated)');
-      window.location.href = '../auth/signin.html';
-    }
+  // Prevent duplicate checks during redirects
+  if (window.authState.isRedirecting) {
+    console.log('Redirect in progress, skipping auth check');
+    return;
   }
+  try {
+    const supabase = getClient();
+    if (!supabase) throw new Error('Supabase client not initialized');
+    // Get session from Supabase (uses localStorage/sessionStorage as set by persistSession)
+    const { data, error } = await supabase.auth.getSession();
+    console.log('[Auth Debug] Supabase getSession() data:', data);
+    if (error) throw error;
+    const user = data && data.session && data.session.user ? data.session.user : null;
+    console.log('[Auth Debug] User from session:', user);
+    window.authState.user = user;
+    window.authState.isAuthenticated = !!user;
+    window.authState.initialized = true;
+    window.userAuthenticated = !!user;
+    window.currentUser = user;
+    // Dispatch auth event for other listeners
+    const authInitEvent = new CustomEvent('authInitialized', { 
+      detail: { user: user, isAuthenticated: !!user } 
+    });
+    document.dispatchEvent(authInitEvent);
+    // Routing logic
+    const currentPath = window.location.pathname;
+    const cleanPath = currentPath.replace(/^\/+/, '');
+    const adminDashboardLoaded = sessionStorage.getItem('adminDashboardLoaded') === 'true';
+    const isAdminDashboardPath = cleanPath.startsWith('admin-dashboard');
+    if (user) {
+      window.authState.isAdmin = true;
+      if (isAdminDashboardPath && !adminDashboardLoaded) {
+        sessionStorage.setItem('adminDashboardLoaded', 'true');
+      }
+      return;
+    }
+    // Not logged in, redirect if on protected page
+    if ((cleanPath.startsWith('dashboard') || cleanPath.startsWith('admin-dashboard')) && 
+        !window.location.pathname.includes('signin')) {
+      window.authState.isRedirecting = true;
+      console.log('Redirecting unauthenticated user from protected page to signin');
+      redirectToPage('/signin');
+    }
+  } catch (error) {
+    console.error('[Auth Debug] Error checking authentication state:', error);
+  }
+}
+
+// Helper function to handle redirects consistently
+function redirectToPage(path) {
+  // Clean the path for consistent handling
+  const cleanPath = path.replace(/^\/+/, '');
+  
+  // Get current path to prevent redirect loops
+  const currentPath = window.location.pathname.toLowerCase().replace(/^\/+/, '');
+  
+  // Prevent redirect loops by checking if we're already on the target page
+  if (currentPath === cleanPath) {
+    console.log(`Already on ${cleanPath}, preventing redirect loop`);
+    if (window.authState) window.authState.isRedirecting = false;
+    return;
+  }
+  
+  // Set session storage flag for admin dashboard to prevent reload loops
+  if (cleanPath.startsWith('admin-dashboard')) {
+    sessionStorage.setItem('adminDashboardLoaded', 'true');
+  } else if (cleanPath.startsWith('signin') || cleanPath.startsWith('signup')) {
+    sessionStorage.removeItem('adminDashboardLoaded');
+  }
+  
+  // Use SPA routing if available
+  if (typeof window.handleRouting === 'function') {
+    console.log(`Using SPA routing to redirect to ${path}`);
+    window.history.pushState({}, '', path);
+    // Force the routing to avoid skipping redirects in progress
+    window.handleRouting(true);
+  } else {
+    // Fallback to direct navigation
+    console.log(`Using direct navigation to redirect to ${path}`);
+    setTimeout(() => {
+      window.location.href = path;
+    }, 150); // Small delay to allow logs to be seen
+  }
+  
+  // Reset redirect flag after a delay
+  setTimeout(() => {
+    if (window.authState) window.authState.isRedirecting = false;
+  }, 500);
 }
 
 // Get current user
@@ -60,6 +152,29 @@ async function getCurrentUser() {
     if (!supabase) return null;
     
     const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      // Log user data for debugging
+      console.log('Retrieved user:', user.email);
+      console.log('User metadata:', user.user_metadata);
+      
+      // Store user in global window object for easy access
+      window.currentUser = user;
+      
+      // Ensure we have the latest metadata by refreshing the session
+      try {
+        const { data: sessionData } = await supabase.auth.refreshSession();
+        if (sessionData && sessionData.user) {
+          console.log('Refreshed user session with updated metadata');
+          // Update the global user object with refreshed data
+          window.currentUser = sessionData.user;
+          return sessionData.user;
+        }
+      } catch (refreshError) {
+        console.warn('Could not refresh session:', refreshError.message);
+      }
+    }
+    
     return user;
   } catch (error) {
     console.error('Error getting user:', error.message);
@@ -170,54 +285,42 @@ function initSignin() {
   
   signinForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+    // Store rememberMe preference for checkbox UI only
+    if (rememberMe && rememberMe.checked) {
+      localStorage.setItem('rememberMe', 'true');
+    } else {
+      localStorage.removeItem('rememberMe');
+    }
     // Show loading state
     signinButton.disabled = true;
     signinButton.textContent = 'Signing in...';
-    
     // Get form values
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
-    
-    // Validate input
-    if (!email || !password) {
-      errorMessage.textContent = 'Email and password are required';
-      signinButton.disabled = false;
-      signinButton.textContent = 'Sign In';
-      return;
-    }
-    
     try {
       const supabase = getClient();
       if (!supabase) throw new Error('Supabase client not initialized');
-      
-      // Attempt to sign in
+      // Always persist session so user stays logged in after reload
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
+        options: {
+          persistSession: true
+        }
       });
-      
-      if (error) {
-        throw error;
-      }
-      
-      // Save remember me preference
-      if (rememberMe && rememberMe.checked) {
-        localStorage.setItem('rememberMe', 'true');
-      } else {
-        localStorage.removeItem('rememberMe');
-      }
-      
-      // Clear error message
+      if (error) throw error;
+      // No need to save rememberMe preference anymore
+      localStorage.removeItem('rememberMe');
+
       errorMessage.textContent = '';
-      
-      // Redirect to dashboard
-      window.location.hash = '#/dashboard';
+      // Redirect to dashboard (SPA hash route or use router)
+      if (window.bluestockRouter && typeof window.bluestockRouter.navigate === 'function') {
+        window.bluestockRouter.navigate('dashboard', true);
+      } else {
+        window.location.hash = '#/dashboard';
+      }
     } catch (error) {
-      // Show error message
       errorMessage.textContent = error.message || 'Failed to sign in. Please check your credentials.';
-      
-      // Reset button state
       signinButton.disabled = false;
       signinButton.textContent = 'Sign In';
     }
@@ -239,26 +342,45 @@ function initSignin() {
     });
   }
   
-  // Set remember me checkbox from localStorage
-  if (rememberMe && localStorage.getItem('rememberMe') === 'true') {
-    rememberMe.checked = true;
-  }
+  // No longer need to set remember me checkbox, session is always persisted
+
 }
 
 // Handle sign out
-function signOutUser() {
+async function signOutUser() {
   const supabase = getClient();
   if (!supabase) {
     console.error('Supabase client not initialized');
     return;
   }
-  
-  supabase.auth.signOut().then(() => {
-    window.location.hash = '#/signin';
-  }).catch(error => {
+  try {
+    console.log('Signing out user...');
+    // Clear rememberMe preference when signing out
+    localStorage.removeItem('rememberMe');
+    // Clear any auth state
+    if (window.authState) {
+      window.authState.user = null;
+      window.authState.isAuthenticated = false;
+      window.authState.isAdmin = false;
+    }
+    // Clear session storage items
+    sessionStorage.removeItem('adminDashboardLoaded');
+    // Sign out from Supabase
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    // Also clear Supabase session data from localStorage/sessionStorage
+    localStorage.removeItem('supabase.auth.token');
+    sessionStorage.removeItem('supabase.auth.token');
+    console.log('User successfully signed out');
+    window.location.href = '../auth/signin.html';
+  } catch (error) {
     console.error('Error signing out:', error.message);
-  });
+    alert('There was an error signing out. Please try again.');
+  }
 }
+
+// No longer need to set rememberMe checkbox on page load, since session is always persisted
+
 
 // Initialize auth functionality based on current page
 function initAuth() {

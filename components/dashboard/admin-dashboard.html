@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Bluestock Fintech</title>
+    <link rel="stylesheet" href="../../styles/dashboard/admin-dashboard.css">
+    <!-- Using Font Awesome 6 for all icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Load Supabase JavaScript SDK first -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Directly initialize Supabase and check auth state -->
+    <script>
+        // User name update - Apply the name as soon as page starts loading
+        (function() {
+            // Function to update the user name
+            function updateUserName() {
+                try {
+                    // Direct DOM manipulation
+                    var nameElement = document.getElementById('userDisplayName');
+                    if (!nameElement) {
+                        return false;
+                    }
+                    
+                    // 1. First try: Use directly from metadata in window object
+                    if (window.userMetadata && window.userMetadata.full_name) {
+                        nameElement.innerHTML = 'Hi, ' + window.userMetadata.full_name;
+                        return true;
+                    }
+                    
+                    // 2. Second try: Use from localStorage
+                    var savedName = localStorage.getItem('bluestock_user_name');
+                    if (savedName) {
+                        nameElement.innerHTML = 'Hi, ' + savedName;
+                        return true;
+                    }
+                    
+                    // 3. Third try: Get directly from Supabase
+                    if (window.supabaseClient) {
+                        window.supabaseClient.auth.getUser().then(function(response) {
+                            if (response && response.data && response.data.user && 
+                                response.data.user.user_metadata && 
+                                response.data.user.user_metadata.full_name) {
+                                
+                                nameElement.innerHTML = 'Hi, ' + response.data.user.user_metadata.full_name;
+                                
+                                // Save for future use
+                                localStorage.setItem('bluestock_user_name', response.data.user.user_metadata.full_name);
+                            }
+                        });
+                    }
+                    
+                    return false; // We couldn't immediately update, but async update might be happening
+                } catch (e) {
+                    return false;
+                }
+            }
+            
+            // Run immediately
+            var updated = updateUserName();
+            
+            // If not updated immediately, set up retries
+            if (!updated) {
+                var retryAttempts = 0;
+                var retryInterval = setInterval(function() {
+                    retryAttempts++;
+                    
+                    if (updateUserName() || retryAttempts > 20) {
+                        clearInterval(retryInterval);
+                    }
+                }, 200); // Try every 200ms
+            }
+        })();
+        
+        // Immediately use the global Supabase client
+        (function() {
+            const supabase = window.supabaseClient;
+            if (!supabase) {
+                alert('Authentication error: Supabase client not initialized. Please reload the page or contact support.');
+                throw new Error('Supabase client not initialized.');
+            }
+            try {
+                
+                // Check session immediately
+                window.supabaseClient.auth.getSession().then(({ data, error }) => {
+                    if (!error && data && data.session) {
+                        // Store session data globally
+                        window.authSession = data.session;
+                        
+                        // Get user data
+                        window.supabaseClient.auth.getUser().then(({ data: userData, error: userError }) => {
+                            if (!userError && userData && userData.user) {
+                                // Store user data globally
+                                window.currentUser = userData.user;
+                                // Store user metadata for easy access
+                                window.userMetadata = userData.user.user_metadata || {};
+                            }
+                        });
+                    }
+                });
+            } catch (e) {
+                // Silent error handling in production
+            }
+        })();
+    </script>
+    <!-- Then load our auth.js which depends on it -->
+    <style>
+        .user-dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+        .user-dropdown-toggle {
+            cursor: pointer;
+            outline: none;
+        }
+        
+
+    </style>
+    <script src="../../js/auth.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="brand" id="company-brand">
+                <div class="company-logo">BF</div>
+                <span>Bluestock Fintech</span>
+            </div>
+            
+            <div class="menu-header">MENU</div>
+            <nav class="menu">
+                <a href="#" class="active"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
+                <a href="#"><i class="fa-solid fa-list-check"></i> Manage IPO</a>
+                <a href="#"><i class="fa-solid fa-file-invoice"></i> IPO Subscription</a>
+                <a href="#"><i class="fa-solid fa-chart-pie"></i> IPO Allotment</a>
+            </nav>
+            
+            <div class="menu-header">OTHERS</div>
+            <nav class="menu">
+                <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="#"><i class="fa-solid fa-plug"></i> API Manager</a>
+                <a href="#"><i class="fa-solid fa-users"></i> Accounts</a>
+                <a href="#"><i class="fa-solid fa-circle-question"></i> Help</a>
+            </nav>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Search and User Info -->
+            <div class="header">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search" class="search-input">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                </div>
+                <div class="user-info">
+                    <div class="user">
+                        <div class="user-avatar">
+                            <div class="avatar-circle"></div>
+                        </div>
+                        <div class="user-dropdown-container">
+                            <span id="userDisplayName" class="user-dropdown-toggle" tabindex="0">Hi, User</span>
+                            <i class="fa-solid fa-chevron-down user-dropdown-toggle" tabindex="0"></i>
+                            <div id="userDropdownMenu" class="user-dropdown-menu">
+                                <button id="logoutBtn" class="logout-btn">Logout</button>
+                            </div>
+                        </div>
+                        <!-- Direct name update script -->
+                        <script>
+                            // Immediate execution to update name right where it appears in the DOM
+                            (function() {
+                                try {
+                                    // Wait just a moment for the Supabase init to complete
+                                    setTimeout(function() {
+                                        // Direct access to the element we just defined above
+                                        var userNameEl = document.getElementById('userDisplayName');
+                                        
+                                        // Method 1: Use the metadata we just stored in the head section
+                                        if (window.userMetadata && window.userMetadata.full_name) {
+                                            userNameEl.textContent = 'Hi, ' + window.userMetadata.full_name;
+                                            return;
+                                        }
+                                        
+                                        // Method 2: Try to get from currentUser
+                                        if (window.currentUser && window.currentUser.user_metadata && 
+                                            window.currentUser.user_metadata.full_name) {
+                                            userNameEl.textContent = 'Hi, ' + window.currentUser.user_metadata.full_name;
+                                            return;
+                                        }
+                                        
+                                        // Method 3: Direct Supabase query
+                                        if (window.supabaseClient) {
+                                            window.supabaseClient.auth.getUser().then(function(result) {
+                                                if (result && result.data && result.data.user && 
+                                                    result.data.user.user_metadata && 
+                                                    result.data.user.user_metadata.full_name) {
+                                                    userNameEl.textContent = 'Hi, ' + result.data.user.user_metadata.full_name;
+                                                }
+                                            });
+                                        }
+                                    }, 200); // Small delay to ensure the element is fully rendered
+                                } catch(e) {
+                                    // Silent error handling in production
+                                }
+                            })();
+                        </script>
+                    </div>
+                    <div class="notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Title and Social Icons -->
+            </style>
+            
+            <!-- Dashboard Title -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Dashboard</h1>
+                </div>
+            </div>
+            
+            <style>
+/* Page Header: "Dashboard" title */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.dashboard-title h1 {
+    margin: 0;
+    font-size: 24px; /* Adjusted from image */
+    font-weight: 600;
+    color: #202124;
+}
+
+/* Container for the three main cards/widgets */
+.dashboard-content {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* Common styling for all widgets in .dashboard-content */
+.dashboard-content .widget {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    flex: 1 1 calc(33.333% - 14px); /* (100% - 2*20px gap) / 3 */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 340px; /* Base min height for visual consistency */
+}
+
+/* Widget Titles (h2) */
+.widget h2 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #202124;
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+/* General Subtitles within widgets (first <p> after <h2> or specific class) */
+.widget > h2 + p {
+    font-size: 13px;
+    color: #5f6368;
+    margin-top: -4px;
+    margin-bottom: 15px;
+}
+
+/* IPO Dashboard India card */
+.widget.ipo-dashboard .ipo-stats {
+    margin-bottom: 15px;
+}
+.widget.ipo-dashboard .ipo-stats .stat-item {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e8e3e;
+    margin: 0;
+}
+.widget.ipo-dashboard .ipo-stats .stat-item .arrow-up {
+    font-weight: bold;
+}
+.ipo-image-charts {
+    position: relative;
+    width: 280px; /* Increased container size */
+    height: 240px; /* Further Increased container height for labels */
+    margin: auto; /* Centering the chart block */
+    align-self: center;
+}
+.ipo-image-chart-item { position: absolute; text-align: center; }
+.ipo-image-chart-item img { display: block; margin: 0 auto 5px; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+.ipo-image-chart-item .chart-label { font-size: 11px; color: #555; }
+.ipo-image-chart-item .chart-label .chart-value { display: block; font-size: 16px; font-weight: bold; }
+.ipo-image-chart-item.chart-total { top: 40px; left: 90px; z-index: 1;} /* Corrected z-index, adjusted left for better cluster */
+.ipo-image-chart-item.chart-total img { width: 130px; height: 130px; } /* Increased size */
+.ipo-image-chart-item.chart-total .chart-label .chart-value { font-size: 20px; color: #FFA500; }
+.ipo-image-chart-item.chart-gain { top: 110px; left: 45px; z-index: 2;} /* Final position adjustment */
+.ipo-image-chart-item.chart-gain img { width: 105px; height: 105px; } /* Increased size */
+.ipo-image-chart-item.chart-gain .chart-label .chart-value { color: #39E1D7; }
+.ipo-image-chart-item.chart-loss { top: 5px; left: 40px; z-index: 3; } /* Final position adjustment */
+.ipo-image-chart-item.chart-loss img { width: 95px; height: 95px; } /* Increased size */
+.ipo-image-chart-item.chart-loss .chart-label .chart-value { color: #8980F5; }
+
+/* Quick Links card */
+.widget.quick-links ul.links-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+.widget.quick-links ul.links-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+}
+.widget.quick-links ul.links-list li:not(:last-child) {
+    border-bottom: 1px solid #e8eaed;
+}
+.widget.quick-links .link-icon { margin-right: 12px; flex-shrink: 0; }
+.widget.quick-links .link-icon img { width: 32px; height: 32px; object-fit: contain; border-radius: 50%;}
+.widget.quick-links li span { flex-grow: 1; font-size: 14px; color: #3c4043; }
+.widget.quick-links li a.visit-now {
+    font-size: 13px; font-weight: 500; color: #4A55A2; text-decoration: none; white-space: nowrap;
+}
+.widget.quick-links li a.visit-now:hover { text-decoration: underline; }
+
+/* Main Board IPO card */
+.widget.main-board .board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0; /* Title and subtitle are close */
+}
+.widget.main-board .board-header h2 {
+    margin-bottom: 0; /* Remove bottom margin if subtitle is directly after */
+}
+.widget.main-board .board-subtitle { /* For "From 01 Jan 2024" */
+    font-size: 13px;
+    color: #5f6368;
+    margin-top: 0px; /* Adjust to align with h2 */
+    margin-bottom: 15px;
+}
+.view-report {
+    padding: 6px 12px;
+    border: 1px solid #A0A6E4;
+    border-radius: 6px;
+    color: #4A55A2;
+    background-color: #FFFFFF;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+.view-report:hover { background-color: #F0F2F5; color: #4A55A2; }
+.main-board-image-container {
+    padding: 10px 0;
+    text-align: center;
+    align-self: center; /* Center the chart block */
+    margin: auto; /* Center block if it has fixed width */
+}
+.main-board-image-container img {
+    max-width: 150px; /* Further adjusted for smaller size */
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+.main-board-legend {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0px;
+    margin-top: auto; /* Push legend to bottom of card */
+    width: 100%;
+}
+.main-board-legend .legend-item { display: flex; align-items: center; font-size: 12px; color: #5f6368; }
+.main-board-legend .legend-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.main-board-legend .legend-dot.upcoming { background-color: #4A55A2; }
+.main-board-legend .legend-dot.new-listed { background-color: #A0A6E4; }
+.main-board-legend .legend-dot.ongoing { background-color: #D8D9F0; }
+.main-board-legend .legend-label { margin-right: 4px; color: #3c4043; }
+.main-board-legend .legend-count { font-weight: 500; color: #5f6368; }
+
+.main-board-image-container {
+    position: relative; /* Ensure this is set for absolute positioning of children */
+    text-align: center; /* Keeps image centered if not full width */
+    padding-top: 20px; /* Add some padding to ensure tooltip doesn't overlap card header */
+    margin-bottom: 15px; /* Add some space before the legend */
+}
+
+.chart-tooltip {
+    position: absolute;
+    top: 5px; /* Position tooltip higher, more above the chart image */
+    right: 75px; /* Shift tooltip slightly left for precise alignment */
+    background-color: #2a3042; /* Dark blue/purple from image */
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 10;
+    min-width: 100px; /* Ensure it has some width */
+}
+
+.chart-tooltip p {
+    margin: 0;
+    padding: 1px 0;
+}
+
+.chart-tooltip .tooltip-value {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.chart-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -7px; /* Half the height of the triangle */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid #2a3042; /* Same color as card background */
+}
+
+</style>
+            
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- IPO Dashboard India Section -->
+                <div class="widget ipo-dashboard">
+                    <h2>IPO Dashboard India</h2>
+                    
+                    <div class="ipo-stats">
+                        <p class="stat-item"><span class="arrow-up">↑</span> 20 IPO in Gain</p>
+                    </div>
+                    
+                    <div class="ipo-image-charts">
+                        <div class="ipo-image-chart-item chart-loss">
+                            <img src="../../images/icons/chart-1.png" alt="IPO in Loss Chart">
+                        </div>
+                        <div class="ipo-image-chart-item chart-gain">
+                            <img src="../../images/icons/chart-2.png" alt="IPO in Gain Chart">
+                            <div class="chart-label">
+                            </div>
+                        </div>
+                        <div class="ipo-image-chart-item chart-total">
+                            <img src="../../images/icons/chart-3.png" alt="Total IPO Chart">
+                            <div class="chart-label">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Links Section -->
+                <div class="widget quick-links">
+                    <h2>Quick Links</h2>
+                    <p>Adipiscing elit, sed do eiusmod tempor</p>
+                    
+                    <ul class="links-list">
+                        <li>
+                            <div class="link-icon nse"><img src="../../images/Company LOGO/NSE.png" alt="NSE Logo" style="width:32px;height:32px;object-fit:contain;" /></div>
+                            <span>NSE India</span>
+                            <a href="#" class="visit-now">Visit Now</a>
+                        </li>
+                        <li>
+                            <div class="link-icon bse"><img src="../../images/Company LOGO/BSE.png" alt="BSE Logo" style="width:32px;height:32px;object-fit:contain;" /></div>
+                            <span>BSE India</span>
+                            <a href="#" class="visit-now">Visit Now</a>
+                        </li>
+                        <li>
+                            <div class="link-icon sebi"><img src="../../images/Company LOGO/SEBI.png" alt="SEBI Logo" style="width:32px;height:32px;object-fit:contain;" /></div>
+                            <span>SEBI</span>
+                            <a href="#" class="visit-now">Visit Now</a>
+                        </li>
+                        <li>
+                            <div class="link-icon money-control"><img src="../../images/Company LOGO/moneyControl.png" alt="Money Control Logo" style="width:32px;height:32px;object-fit:contain;" /></div>
+                            <span>Money Control</span>
+                            <a href="#" class="visit-now">Visit Now</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Main Board IPO -->
+                <div class="widget main-board">
+                    <div class="board-header">
+                        <h2>Main Board IPO</h2>
+                        <a href="#" class="view-report">View Report</a>
+                    </div>
+                    <p class="board-subtitle">From 01 Jan 2024</p>
+                    
+                    <div class="main-board-image-container">
+                        <img src="../../images/icons/rightchart.png" alt="Main Board IPO Chart">
+                        <div class="chart-tooltip">
+                            <p>Afternoon</p>
+                            <p>IPO NSE & BSE</p>
+                            <p class="tooltip-value">15</p>
+                        </div>
+                    </div>
+                    <div class="main-board-legend">
+                        <div class="legend-item">
+                            <span class="legend-dot upcoming"></span>
+                            <span class="legend-label">Upcoming</span>
+                            <span class="legend-count">15</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot new-listed"></span>
+                            <span class="legend-label">New Listed</span>
+                            <span class="legend-count">25</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot ongoing"></span>
+                            <span class="legend-label">Ongoing</span>
+                            <span class="legend-count">2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            function toggleDropdown() {
+                userDropdown.classList.toggle('hidden');
+            }
+            
+            // Link both company brand and user dropdown arrow to toggle the dropdown
+            if (userElement) userElement.addEventListener('click', toggleDropdown);
+            if (companyBrand) companyBrand.addEventListener('click', toggleDropdown);
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!userElement?.contains(e.target) && !companyBrand?.contains(e.target) && !userDropdown?.contains(e.target)) {
+                    userDropdown?.classList.add('hidden');
+                }
+            });
+
+            // Setup user dropdown menu for logout
+            const userDisplayName = document.getElementById('userDisplayName');
+            
+            // Hard-coded user data fallback for debugging - remove in production
+            const DEBUG_USER = {
+                email: 'user@example.com',
+                user_metadata: {
+                    full_name: 'Test User'
+                }
+            };
+            
+            // Update user display name from auth system
+            async function updateUserName() {
+                try {
+                    console.log('Attempting to update user name...');
+                    // Get the current user using the shared auth.js functions
+                    let user = null;
+                    
+                    // Method 1: Try to use window.currentUser which is set in auth.js
+                    if (window.currentUser) {
+                        console.log('Using window.currentUser...');
+                        user = window.currentUser;
+                    }
+                    
+                    // Method 2: Direct Supabase client access
+                    if (!user && window.supabaseClient) {
+                        console.log('Getting user directly from Supabase client...');
+                        try {
+                            const { data } = await window.supabaseClient.auth.getUser();
+                            if (data && data.user) {
+                                user = data.user;
+                                console.log('Retrieved user from Supabase:', user.email);
+                            }
+                        } catch (e) {
+                            console.error('Error getting user from Supabase:', e);
+                        }
+                    }
+                    
+                    // Method 3: Get from current session
+                    if (!user && window.supabaseClient) {
+                        try {
+                            console.log('Getting user from session...');
+                            const { data } = await window.supabaseClient.auth.getSession();
+                            if (data && data.session && data.session.user) {
+                                user = data.session.user;
+                                console.log('Retrieved user from session:', user.email);
+                            }
+                        } catch (e) {
+                            console.error('Error getting session:', e);
+                        }
+                    }
+                    
+                    // Method 4: Use the DEBUG_USER if all else fails and we're in development
+                    if (!user && window.location.hostname === 'localhost') {
+                        console.log('Using DEBUG_USER as fallback...');
+                        user = DEBUG_USER;
+                    }
+                    
+                    if (user) {
+                        // Log complete user object for debugging
+                        console.log('Full user object:', JSON.stringify(user, null, 2));
+                        console.log('User metadata:', user.user_metadata);
+                        console.log('User email:', user.email);
+                        
+                        // Extract name from user data with fallbacks
+                        let displayName = 'User';
+                        
+                        // For Supabase, metadata is in user_metadata or app_metadata
+                        const metadata = user.user_metadata || user.app_metadata || {};
+                        console.log('Using metadata:', metadata);
+                        
+                        // Priority 1: Check for full_name in metadata
+                        if (metadata.full_name) {
+                            displayName = metadata.full_name;
+                            console.log('Using full_name from metadata');
+                        }
+                        // Priority 2: Check for name in metadata
+                        else if (metadata.name) {
+                            displayName = metadata.name;
+                            console.log('Using name from metadata');
+                        }
+                        // Priority 3: Check for first_name and last_name in metadata
+                        else if (metadata.first_name || metadata.last_name) {
+                            const firstName = metadata.first_name || '';
+                            const lastName = metadata.last_name || '';
+                            displayName = (firstName + ' ' + lastName).trim();
+                            console.log('Using first_name/last_name from metadata');
+                        }
+                        // Priority 4: Extract name from email
+                        else if (user.email) {
+                            // Extract name part from email
+                            displayName = user.email.split('@')[0];
+                            // Capitalize first letter and replace dots/underscores with spaces
+                            displayName = displayName
+                                .split(/[._-]/)
+                                .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                                .join(' ');
+                            console.log('Using formatted email as name');
+                        }
+                        
+                        // Update the display name in the UI
+                        userDisplayName.textContent = `Hi, ${displayName}`;
+                        console.log('Updated user display name:', displayName);
+                    } else {
+                        console.warn('No user found, using default display name');
+                        userDisplayName.textContent = 'Hi, Guest';
+                    }
+                } catch (error) {
+                    console.error('Error updating user display name:', error);
+                    // Fallback to a generic greeting
+                    userDisplayName.textContent = 'Hi, User';
+                }
+            }
+            
+            // User authentication check
+            // Get Supabase client directly
+            const supabase = window.supabaseClient;
+            
+            // Direct Supabase authentication check
+            async function directUserCheck() {
+                try {
+                    // Method 1: Check current session directly
+                    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+                    
+                    if (!sessionError && sessionData && sessionData.session) {
+                        // Method 2: Get user data directly
+                        const { data: userData, error: userError } = await supabase.auth.getUser();
+                        
+                        if (!userError && userData && userData.user) {
+                            // Extract name with fallbacks
+                            const user = userData.user;
+                            let displayName = 'User';
+                            
+                            if (user.user_metadata && user.user_metadata.full_name) {
+                                displayName = user.user_metadata.full_name;
+                            } else if (user.user_metadata && user.user_metadata.name) {
+                                displayName = user.user_metadata.name;
+                            } else if (user.email) {
+                                // Extract name from email
+                                displayName = user.email.split('@')[0];
+                                displayName = displayName
+                                    .split(/[._-]/)
+                                    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                                    .join(' ');
+                            }
+                            
+                            // Update UI - Force the update with direct DOM manipulation
+                            const userDisplayEl = document.getElementById('userDisplayName');
+                            if (userDisplayEl) {
+                                // Store the name in data attribute to ensure it persists
+                                userDisplayEl.setAttribute('data-name', displayName);
+                                userDisplayEl.textContent = `Hi, ${displayName}`;
+                                // Also update via innerHTML to force a redraw
+                                userDisplayEl.innerHTML = `Hi, ${displayName}`;
+                                
+                                // Also save to localStorage as a backup
+                                try {
+                                    localStorage.setItem('bluestock_user_name', displayName);
+                                } catch (e) {
+                                    // Silent error handling
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    // Silent error handling
+                }
+            }
+            
+            // Run direct authentication check and related logic in an async IIFE
+            (async function() {
+                await directUserCheck();
+                await updateUserName();
+                // Try multiple times to catch any timing issues
+                setTimeout(() => { directUserCheck(); }, 500);  // Sooner first retry
+                setTimeout(() => { directUserCheck(); }, 1500); // Another retry
+                setTimeout(() => { directUserCheck(); }, 3000); // Final retry
+                // Fallback to localStorage if direct methods fail
+                setTimeout(function() {
+                    const userDisplayEl = document.getElementById('userDisplayName');
+                    if (userDisplayEl && (userDisplayEl.textContent === 'Loading...' || userDisplayEl.textContent === 'Hi, User')) {
+                        try {
+                            const savedName = localStorage.getItem('bluestock_user_name');
+                            if (savedName) {
+                                userDisplayEl.textContent = `Hi, ${savedName}`;
+                            }
+                        } catch (e) {
+                            // Silent error handling
+                        }
+                    }
+                }, 5000); // Last resort fallback after 5 seconds
+                // Set up periodic refresh for both methods
+                setInterval(() => { directUserCheck(); }, 30 * 1000); // Every 30 seconds
+                setInterval(() => { updateUserName(); }, 60 * 1000);  // Every 60 seconds
+            })();
+            
+            // Additionally, watch for user name element changes
+            try {
+                const userNameObserver = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                            const userDisplayEl = document.getElementById('userDisplayName');
+                            if (userDisplayEl && userDisplayEl.textContent === 'Hi, User') {
+                                directUserCheck(); // Try to restore the actual name
+                            }
+                        }
+                    });
+                });
+                
+                // Start observing once DOM is loaded
+                document.addEventListener('DOMContentLoaded', function() {
+                    const userDisplayEl = document.getElementById('userDisplayName');
+                    if (userDisplayEl) {
+                        userNameObserver.observe(userDisplayEl, { characterData: true, childList: true, subtree: true });
+                    }
+                });
+            } catch (e) {
+                // Silent error handling
+            }
+            
+            // Listen for auth events
+            document.addEventListener('authStateChanged', function() {
+                directUserCheck();
+                updateUserName();
+            });
+            
+            document.addEventListener('authInitialized', function() {
+                directUserCheck();
+                updateUserName();
+            });
+            
+            // Toggle dropdown on user icon click
+            if (userElement) {
+                userElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    // Toggle visibility of dropdown
+                    const isDropdownVisible = userDropdown.style.display !== 'none';
+                    userDropdown.style.display = isDropdownVisible ? 'none' : 'block';
+                });
+            }
+            
+            // Close dropdown when clicking elsewhere
+            document.addEventListener('click', function(e) {
+                // Only close if the click was outside the user element
+                if (userElement && !userElement.contains(e.target)) {
+                    userDropdown.style.display = 'none';
+                }
+            });
+            
+            // Setup logout button
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    console.log('Logout button clicked');
+                    try {
+                        // First try to use the signOutUser function from auth.js
+                        if (typeof signOutUser === 'function') {
+                            await signOutUser();
+                            console.log('User signed out successfully');
+                            window.location.href = '/ipo.html';
+                            return;
+                        }
+                        
+                        // Fallback to direct Supabase logout if the function isn't available
+                        const supabase = getClient();
+                        if (supabase) {
+                            const { error } = await supabase.auth.signOut();
+                            if (error) {
+                                throw error;
+                            }
+                            console.log('User signed out with Supabase');
+                            window.location.href = '/ipo.html';
+                            return;
+                        }
+                        
+                        // Last resort fallback
+                        console.warn('No authentication methods found, redirecting to signin page');
+                        window.location.href = '/ipo.html';
+                    } catch (error) {
+                        console.error('Error signing out:', error);
+                        alert('There was an error signing out. Please try again.');
+                    }
+                });
+            }
+            
+            // Check if user is admin and authenticated
+            try {
+                const user = await getCurrentUser();
+                if (!user) {
+                    console.log('No authenticated user found, redirecting to login');
+                    window.location.href = '/ipo.html';
+                    return;
+                }
+                
+                // Set user display name
+                const displayNameEl = document.getElementById('userDisplayName');
+                if (displayNameEl) {
+                    displayNameEl.textContent = `Hi, ${user.user_metadata?.full_name || 'Admin'}`;
+                }
+                
+                // For a real implementation, you would check the user's role here
+                const supabase = getClient();
+                if (supabase) {
+                    const { data, error } = await supabase
+                        .from('users')
+                        .select('role')
+                        .eq('email', user.email)
+                        .single();
+                        
+                    if (error || !data || data.role !== 'admin') {
+                        console.log('Not an admin user, redirecting');
+                        window.location.href = '/dashboard';
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking authentication:', error);
+                window.location.href = '/ipo.html';
+                return;
+            }
+            
+            // IPO Chart (doughnut) removed, replaced by static images.
+            
+            // Main Board Chart (doughnut) removed, replaced by a static image.
+        
+
+    </script>
+<script>
+(async function() {
+console.log('Dropdown JS loaded'); // DEBUG
+// Dropdown logic for user menu
+const toggles = document.querySelectorAll('.user-dropdown-toggle');
+const dropdown = document.getElementById('userDropdownMenu');
+toggles.forEach(function(toggle) {
+    toggle.addEventListener('click', function(e) {
+        console.log('Dropdown toggle clicked'); // DEBUG ONLY
+        e.stopPropagation();
+        dropdown.classList.toggle('show');
+    });
+    toggle.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            dropdown.classList.toggle('show');
+        }
+    });
+});
+document.addEventListener('click', function() {
+    dropdown.classList.remove('show');
+});
+dropdown.addEventListener('click', function(e) {
+    e.stopPropagation();
+});
+// Logout button logic
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', async function() {
+        // Close the dropdown menu
+        const dropdown = document.getElementById('userDropdownMenu');
+        if (dropdown) dropdown.classList.remove('show');
+
+        // Use router logout if available
+        if (window.bluestockRouter && typeof window.bluestockRouter.signOut === 'function') {
+            await window.bluestockRouter.signOut();
+            return;
+        }
+        // Fallback (if router not available):
+        if (window.supabaseClient) {
+            try {
+                await window.supabaseClient.auth.signOut();
+            } catch (error) {
+                console.error('Error signing out:', error);
+            }
+        }
+        localStorage.removeItem('bluestock_user_name');
+        window.location.href = '/ipo';
+    });
+}
+})();
+</script>
+</body>
+</html>

@@ -36,7 +36,7 @@ const server = http.createServer((req, res) => {
     let filePath;
     
     // List of routes that should be handled by the SPA
-    const spaRoutes = ['/', '/index.html', '/home', '/ipo', '/community', '/products', '/brokers', '/live-news', '/signin', '/signup'];
+    const spaRoutes = ['/', '/index.html', '/home', '/ipo', '/community', '/products', '/brokers', '/live-news', '/signin', '/signup', '/dashboard', '/admin-dashboard'];
     
     // Check if the path is a route that should be handled by our SPA
     const isRoute = spaRoutes.some(route => {

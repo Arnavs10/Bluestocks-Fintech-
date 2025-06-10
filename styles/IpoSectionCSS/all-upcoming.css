@@ -7,6 +7,8 @@
     padding: 40px 20px;
     font-family: 'Poppins', sans-serif;
     overflow: visible;
+    position: relative;
+    z-index: 1;
 }
 
 .upcoming-header {
@@ -91,6 +93,38 @@
     align-items: center;
     text-align: center;
     margin-bottom: 20px;
+}
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 768px) {
+    .upcoming-ipos-section {
+        padding-top: 80px; /* Add space for the fixed navbar */
+        margin-top: 0;
+    }
+    
+    .upcoming-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .back-btn {
+        align-self: flex-start;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .upcoming-ipos-section {
+        padding-top: 70px; /* Adjust for smaller screens */
+    }
+    
+    .section-title h1 {
+        font-size: 18px;
+        margin-top: 40px;
+    }
+    
+    .section-title p {
+        font-size: 13px;
+    }
 }
 
 /* Desktop layout with logo left and name right */

@@ -24,7 +24,7 @@
                     </button>
                 </div>
                 <div class="forgot-password">
-                    <a href="#">Forgot Password?</a>
+                    <a href="forgot-password" id="forgotPasswordLink">Forgot Password?</a>
                 </div>
             </div>
             
@@ -60,38 +60,23 @@
     </div>
     
     <!-- Error message container -->
-    <div id="errorMessage" class="error-message"></div>
+    <div id="errorMessage" class="error-message hidden"></div>
 
+    <!-- Load Supabase JavaScript SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // Self-contained authentication script
-        (function() {
+        (async function() {
             console.log('%c SIGNIN COMPONENT LOADED', 'background: #4CAF50; color: white; font-size: 16px; padding: 4px 8px;');
             
-            // Try to use the global Supabase client from various possible sources
-            let client;
-            
-            // Check different possible locations for the Supabase client
-            if (window.supabaseClient) {
-                client = window.supabaseClient;
-                console.log('%c USING GLOBAL SUPABASE CLIENT FROM window.supabaseClient', 'background: #3498db; color: white; font-size: 16px; padding: 4px 8px;');
-            } else if (window.bluestockRouter && window.bluestockRouter.supabase) {
-                client = window.bluestockRouter.supabase;
-                console.log('%c USING ROUTER SUPABASE CLIENT', 'background: #3498db; color: white; font-size: 16px; padding: 4px 8px;');
-            } else {
-                // Initialize a new client as fallback
-                console.log('%c NO GLOBAL CLIENT FOUND, INITIALIZING NEW CLIENT', 'background: #f39c12; color: white; font-size: 16px; padding: 4px 8px;');
-                const SUPABASE_URL = 'https://pyxqwiqvyivyopusgcey.supabase.co';
-                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eHF3aXF2eWl2eW9wdXNnY2V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwOTE1NzEsImV4cCI6MjA2MzY2NzU3MX0.vJEoejN1jgHeU5hcvujKMVuWCHkIy7010N76WXg3_1s';
-                client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            }
-            
-            // Double-check that we have a working client
+            // Always use the global Supabase client
+            let client = window.supabaseClient;
             if (!client) {
-                console.error('%c ERROR: Failed to initialize Supabase client', 'background: #e74c3c; color: white; font-size: 16px; padding: 4px 8px;');
-                document.getElementById('errorMessage').textContent = 'Authentication service unavailable';
-                document.getElementById('errorMessage').classList.remove('hidden');
-                return;
+                alert('Authentication error: Supabase client not initialized. Please reload the page or contact support.');
+                throw new Error('Supabase client not initialized.');
             }
+            
+            // Client is guaranteed to exist here.
             
             // Test the connection
             client.auth.getSession().then(({ data, error }) => {
@@ -103,7 +88,18 @@
                     // If user is already authenticated, redirect to dashboard
                     if (data && data.session) {
                         console.log('User already authenticated, redirecting to dashboard');
-                        window.location.href = '../dashboard/dashboard.html';
+                        // Don't redirect if already on signin page to prevent loops
+                        if (window.location.pathname.toLowerCase().replace(/^\/+/, '') === 'signin') {
+                            console.log('Already on signin page, not redirecting');
+                            return;
+                        }
+                        
+                        // Use the app's routing pattern instead of direct URL
+                        if (typeof redirectToPage === 'function') {
+                            redirectToPage('admin-dashboard');
+                        } else {
+                            window.location.href = 'admin-dashboard';
+                        }
                     }
                 }
             });
@@ -146,10 +142,19 @@
                     try {
                         console.log('Attempting sign in with email:', email);
                         
-                        // Attempt to sign in
+                        // Get remember me preference
+                        const rememberMe = document.getElementById('rememberMe');
+                        const persistenceType = rememberMe && rememberMe.checked ? 'local' : 'none';
+                        
+                        console.log('Persistence type:', persistenceType);
+                        
+                        // Attempt to sign in with persistence option
                         const { data, error } = await client.auth.signInWithPassword({
                             email,
-                            password
+                            password,
+                            options: {
+                                persistSession: persistenceType === 'local'
+                            }
                         });
                         
                         if (error) {
@@ -161,6 +166,15 @@
                         console.log('User signed in successfully:', data.user.email);
                         console.log('User data:', data.user);
                         
+                        // Store whether the user chose to be remembered
+                        if (rememberMe && rememberMe.checked) {
+                            localStorage.setItem('rememberMe', 'true');
+                            console.log('User will be remembered (persistent session)');
+                        } else {
+                            localStorage.removeItem('rememberMe');
+                            console.log('User will not be remembered (session only)');
+                        }
+                        
                         // Success message
                         const notification = document.getElementById('notification');
                         const notificationMessage = document.getElementById('notificationMessage');
@@ -170,17 +184,64 @@
                             notification.classList.add('success');
                         }
                         
-                        // Navigate to dashboard using SPA routing
+                        // For now, treat all users as admins
+                        console.log('Treating all users as admins for now');
+                        
+                        // Prevent multiple redirects using global auth state
+                        if (window.authState && window.authState.isRedirecting) {
+                            console.log('Already redirecting (global state), skipping additional redirect');
+                            return;
+                        }
+                        
+                        // Update global auth state
+                        if (window.authState) {
+                            window.authState.isAuthenticated = true;
+                            window.authState.isRedirecting = true;
+                            window.authState.user = data.user;
+                            window.authState.isAdmin = true; // Treating all users as admins for now
+                        } else {
+                            // Fallback for backward compatibility
+                            window.isRedirecting = true;
+                            window.userAuthenticated = true;
+                            window.currentUser = data.user;
+                        }
+                        
+                        // Display success message and redirect after a short delay
                         setTimeout(() => {
-                            console.log('Redirecting to dashboard via SPA routing');
-                            if (window.bluestockRouter) {
-                                // Use router if available
-                                window.bluestockRouter.navigate('dashboard');
+                            console.log('Redirecting to admin dashboard after successful signin');
+                            
+                            // Use the redirectToPage helper if available
+                            if (typeof redirectToPage === 'function') {
+                                redirectToPage('/admin-dashboard');
                             } else {
-                                // Fallback to hash-based routing
-                                window.location.hash = '#/dashboard';
+                                // Otherwise implement redirect logic here
+                                try {
+                                    // Preferred method: Use SPA routing via global handleRouting function
+                                    if (typeof window.handleRouting === 'function') {
+                                        console.log('Using SPA routing for admin dashboard redirect');
+                                        window.history.pushState({}, '', '/admin-dashboard');
+                                        window.handleRouting();
+                                    } else {
+                                        // Fallback: Use direct navigation
+                                        console.log('Using direct navigation for admin dashboard redirect');
+                                        window.location.href = '/admin-dashboard';
+                                    }
+                                } catch (navigationError) {
+                                    console.error('Navigation error:', navigationError);
+                                    // Ultimate fallback
+                                    window.location.href = '/admin-dashboard';
+                                }
+                                
+                                // Reset redirect flag after redirect completes
+                                setTimeout(() => {
+                                    if (window.authState) {
+                                        window.authState.isRedirecting = false;
+                                    } else {
+                                        window.isRedirecting = false;
+                                    }
+                                }, 1500);
                             }
-                        }, 1000);
+                        }, 1000); // Give enough time for users to see the success message
                     } catch (error) {
                         console.error('Sign in error details:', error);
                         

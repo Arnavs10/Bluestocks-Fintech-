@@ -10,7 +10,11 @@ let _supabase = null;
 // Function to initialize Supabase
 function initSupabase() {
   if (!_supabase && window.supabase) {
-    _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    _supabase = window.supabaseClient;
+    if (!_supabase) {
+        alert('Authentication error: Supabase client not initialized. Please reload the page or contact support.');
+        throw new Error('Supabase client not initialized.');
+    }
     console.log('Supabase client initialized');
   }
   return _supabase;

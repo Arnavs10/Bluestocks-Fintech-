@@ -11,8 +11,10 @@ class AuthRouter {
         this.routes = {
             'signin': '/components/auth/signin.html',
             'signup': '/components/auth/signup.html',
+            'forgot-password': '/components/auth/forgot-password.html',
+            'reset-password': '/components/auth/reset-password.html',
             'dashboard': '/components/dashboard/dashboard.html',
-            'ipo': '/components/ipo/ipo.html',
+            'ipo': '/ipo',
             'upcoming-ipo': '/components/ipo/all-upcoming-ipo.html',
             'home': '/index.html'
         };
@@ -35,7 +37,11 @@ class AuthRouter {
             this.supabase = window.supabaseClient;
             console.log('Router using global Supabase client from window.supabaseClient');
         } else if (window.supabase) {
-            this.supabase = supabase.createClient(this.SUPABASE_URL, this.SUPABASE_KEY);
+            this.supabase = window.supabaseClient;
+            if (!this.supabase) {
+                alert('Authentication error: Supabase client not initialized. Please reload the page or contact support.');
+                throw new Error('Supabase client not initialized.');
+            }
             console.log('Router initialized with new Supabase client');
             // Make it available globally to prevent multiple instances
             window.supabaseClient = this.supabase;
@@ -147,7 +153,7 @@ class AuthRouter {
             if (error) throw error;
             
             console.log('User signed out successfully');
-            this.navigate('home', true);
+            this.navigate('ipo', true);
         } catch (error) {
             console.error('Sign out failed:', error.message);
         }
