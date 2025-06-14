@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Bluestock Fintech</title>
+    <link rel="stylesheet" href="../../styles/dashboard/manage-ipo.css">
+    <!-- Using Font Awesome 6 for all icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Load Supabase JavaScript SDK first -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Directly initialize Supabase and check auth state -->
+    <script>
+        // User name update - Apply the name as soon as page starts loading
+        (function() {
+            // Function to update the user name
+            function updateUserName() {
+                try {
+                    // Direct DOM manipulation
+                    var nameElement = document.getElementById('userDisplayName');
+                    if (!nameElement) {
+                        return false;
+                    }
+                    
+                    // 1. First try: Use directly from metadata in window object
+                    if (window.userMetadata && window.userMetadata.full_name) {
+                        nameElement.innerHTML = 'Hi, ' + window.userMetadata.full_name;
+                        return true;
+                    }
+                    
+                    // 2. Second try: Use from localStorage
+                    var savedName = localStorage.getItem('bluestock_user_name');
+                    if (savedName) {
+                        nameElement.innerHTML = 'Hi, ' + savedName;
+                        return true;
+                    }
+                    
+                    // 3. Third try: Get directly from Supabase
+                    if (window.supabaseClient) {
+                        window.supabaseClient.auth.getUser().then(function(response) {
+                            if (response && response.data && response.data.user && 
+                                response.data.user.user_metadata && 
+                                response.data.user.user_metadata.full_name) {
+                                
+                                nameElement.innerHTML = 'Hi, ' + response.data.user.user_metadata.full_name;
+                                
+                                // Save for future use
+                                localStorage.setItem('bluestock_user_name', response.data.user.user_metadata.full_name);
+                            }
+                        });
+                    }
+                    
+                    return false; // We couldn't immediately update, but async update might be happening
+                } catch (e) {
+                    return false;
+                }
+            }
+            
+            // Run immediately
+            var updated = updateUserName();
+            
+            // If not updated immediately, set up retries
+            if (!updated) {
+                var retryAttempts = 0;
+                var retryInterval = setInterval(function() {
+                    retryAttempts++;
+                    
+                    if (updateUserName() || retryAttempts > 20) {
+                        clearInterval(retryInterval);
+                    }
+                }, 200); // Try every 200ms
+            }
+        })();
+        
+        // Immediately use the global Supabase client
+        (function() {
+            const supabase = window.supabaseClient;
+            if (!supabase) {
+                alert('Authentication error: Supabase client not initialized. Please reload the page or contact support.');
+                throw new Error('Supabase client not initialized.');
+            }
+            try {
+                
+                // Check session immediately
+                window.supabaseClient.auth.getSession().then(({ data, error }) => {
+                    if (!error && data && data.session) {
+                        // Store session data globally
+                        window.authSession = data.session;
+                        
+                        // Get user data
+                        window.supabaseClient.auth.getUser().then(({ data: userData, error: userError }) => {
+                            if (!userError && userData && userData.user) {
+                                // Store user data globally
+                                window.currentUser = userData.user;
+                                // Store user metadata for easy access
+                                window.userMetadata = userData.user.user_metadata || {};
+                            }
+                        });
+                    }
+                });
+            } catch (e) {
+                // Silent error handling in production
+            }
+        })();
+    </script>
+    <!-- Then load our auth.js which depends on it -->
+    <script src="../../js/auth.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="brand" id="company-brand">
+                <div class="company-logo">BF</div>
+                <span>Bluestock Fintech</span>
+            </div>
+            
+            <div class="menu-header">MENU</div>
+            <nav class="menu">
+                <a href="#" data-route="dashboard"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
+                <a href="#" data-route="manage-ipo" class="active"><i class="fa-solid fa-list-check"></i> Manage IPO</a>
+                <a href="#"><i class="fa-solid fa-file-invoice"></i> IPO Subscription</a>
+                <a href="#"><i class="fa-solid fa-chart-pie"></i> IPO Allotment</a>
+            </nav>
+            
+            <div class="menu-header">OTHERS</div>
+            <nav class="menu">
+                <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="#"><i class="fa-solid fa-plug"></i> API Manager</a>
+                <a href="#"><i class="fa-solid fa-users"></i> Accounts</a>
+                <a href="#"><i class="fa-solid fa-circle-question"></i> Help</a>
+            </nav>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Search and User Info -->
+            <div class="header">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search" class="search-input">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                </div>
+                <div class="user-info">
+                    <div class="user">
+                        <div class="user-avatar">
+                            <div class="avatar-circle"></div>
+                        </div>
+                        <div class="user-dropdown-container">
+                            <span id="userDisplayName" class="user-dropdown-toggle" tabindex="0">Hi, User</span>
+                            <i class="fa-solid fa-chevron-down user-dropdown-toggle" tabindex="0"></i>
+                            <div id="userDropdownMenu" class="user-dropdown-menu">
+                                <button id="logoutBtn" class="logout-btn">Logout</button>
+                            </div>
+                        </div>
+                        <!-- Modal for Registering/Updating IPO -->
+                        <div id="ipo-modal" class="modal">
+                            <div class="modal-content">
+                                <span class="close-button">&times;</span>
+                                <h2 id="modal-title">Register IPO</h2>
+                                <form id="ipo-form">
+                                    <input type="hidden" id="ipo-id">
+                                    <div class="form-group">
+                                        <label for="company-name">Company Name</label>
+                                        <input type="text" id="company-name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="price-band">Price Band</label>
+                                        <input type="text" id="price-band" placeholder="e.g., ₹ 100 - ₹ 110">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="open-date">Open Date</label>
+                                        <input type="date" id="open-date">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="close-date">Close Date</label>
+                                        <input type="date" id="close-date">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="issue-size">Issue Size</label>
+                                        <input type="text" id="issue-size" placeholder="e.g., 500 Cr.">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="issue-type">Issue Type</label>
+                                        <input type="text" id="issue-type" value="Book Built">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="listing-date">Listing Date</label>
+                                        <input type="date" id="listing-date">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="status">Status</label>
+                                        <select id="status">
+                                            <option value="Coming">Coming</option>
+                                            <option value="Ongoing">Ongoing</option>
+                                            <option value="New Listed">New Listed</option>
+                                            <option value="Closed">Closed</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save IPO</button>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- Direct name update script -->
+                        <script>
+                            // Immediate execution to update name right where it appears in the DOM
+                            (function() {
+                                try {
+                                    // Wait just a moment for the Supabase init to complete
+                                    setTimeout(function() {
+                                        // Direct access to the element we just defined above
+                                        var userNameEl = document.getElementById('userDisplayName');
+                                        
+                                        // Method 1: Use the metadata we just stored in the head section
+                                        if (window.userMetadata && window.userMetadata.full_name) {
+                                            userNameEl.textContent = 'Hi, ' + window.userMetadata.full_name;
+                                            return;
+                                        }
+                                        
+                                        // Method 2: Try to get from currentUser
+                                        if (window.currentUser && window.currentUser.user_metadata && 
+                                            window.currentUser.user_metadata.full_name) {
+                                            userNameEl.textContent = 'Hi, ' + window.currentUser.user_metadata.full_name;
+                                            return;
+                                        }
+                                        
+                                        // Method 3: Direct Supabase query
+                                        if (window.supabaseClient) {
+                                            window.supabaseClient.auth.getUser().then(function(result) {
+                                                if (result && result.data && result.data.user && 
+                                                    result.data.user.user_metadata && 
+                                                    result.data.user.user_metadata.full_name) {
+                                                    userNameEl.textContent = 'Hi, ' + result.data.user.user_metadata.full_name;
+                                                }
+                                            });
+                                        }
+                                    }, 200); // Small delay to ensure the element is fully rendered
+                                } catch(e) {
+                                    // silent catch
+                                }
+                            })();
+                        </script>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-header">
+                <h1>Upcoming IPO <span class="header-pipe">|</span> <span class="header-breadcrumb">Dashboard</span></h1>
+                <button class="register-ipo-btn">Register IPO</button>
+            </div>
+
+            <div class="dashboard-content">
+                <!-- IPO Dashboard India Section -->
+                <div class="widget ipo-dashboard">
+                    <h2>IPO Dashboard India</h2>
+                    
+                    <!-- Table for IPO data -->
+                    <div class="ipo-table-container">
+                        <table class="ipo-table">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Price Band</th>
+                                    <th>Open</th>
+                                    <th>Close</th>
+                                    <th>Issue Size</th>
+                                    <th>Issue Type</th>
+                                    <th>Listing Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                    <th>Delete/View</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ipo-table-body">
+                                <!-- Data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+<script>
+const ipoData = [
+  { company: "Adani Power", price_band: "₹ 329 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "45530.15 Cr.", issue_type: "Book Built", listing_date: "2023-06-10", status: "Ongoing" },
+  { company: "VBL LTD", price_band: "₹ 229 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "1330.15 Cr.", issue_type: "Book Built", listing_date: "2018-06-10", status: "Comming" },
+  { company: "Tata Motor", price_band: "₹ 12549 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "1340.15 Cr.", issue_type: "Book Built", listing_date: "2016-06-10", status: "New Listed" },
+  { company: "HDFC LTD", price_band: "₹ 1244 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "830.15 Cr.", issue_type: "Book Built", listing_date: "2029-06-11", status: "Comming" },
+  { company: "Tata Motor", price_band: "₹ 629 - 136", open: "2024-06-01", close: "2024-06-05", issue_size: "820.15 Cr.", issue_type: "Book Built", listing_date: "2024-06-05", status: "Ongoing" },
+  { company: "VBL LTD", price_band: "₹ 629 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "130.15 Cr.", issue_type: "Book Built", listing_date: "2024-06-10", status: "Comming" },
+  { company: "Tata Motor", price_band: "₹ 6729 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "170.15 Cr.", issue_type: "Book Built", listing_date: "2027-06-10", status: "New Listed" },
+  { company: "VBL LTD", price_band: "₹ 1629 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "130.15 Cr.", issue_type: "Book Built", listing_date: "2022-06-10", status: "Comming" },
+  { company: "Tata Motor", price_band: "₹ 2329 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "130.15 Cr.", issue_type: "Book Built", listing_date: "2023-06-10", status: "New Listed" },
+  { company: "VBL LTD", price_band: "₹ 329 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "130.15 Cr.", issue_type: "Book Built", listing_date: "2021-06-10", status: "Comming" }
+];
+
+const statusBadgeStyles = {
+  "Ongoing": "background:#e7f8ee;color:#1ab759;",
+  "Comming": "background:#fff9e5;color:#ffb300;",
+  "New Listed": "background:#ffeaea;color:#ff5c5c;"
+};
+
+function renderIpoTable() {
+  const tbody = document.getElementById('ipo-table-body');
+  tbody.innerHTML = '';
+  ipoData.forEach(ipo => {
+    const badgeStyle = statusBadgeStyles[ipo.status] || '';
+    tbody.innerHTML += `
+      <tr>
+        <td>${ipo.company}</td>
+        <td>${ipo.price_band}</td>
+        <td>${ipo.open}</td>
+        <td>${ipo.close}</td>
+        <td>${ipo.issue_size}</td>
+        <td>${ipo.issue_type}</td>
+        <td>${ipo.listing_date}</td>
+        <td><span class="status-badge" style="${badgeStyle}padding:0.3em 1em;border-radius:16px;font-weight:600;">${ipo.status}</span></td>
+        <td><button class="action-btn" style="background:#5640ff;color:#fff;border:none;border-radius:6px;padding:0.4em 1.2em;font-weight:600;">Update</button></td>
+        <td>
+          <i class="fa-solid fa-trash" style="color:#ff5c5c;cursor:pointer;margin-right:10px;"></i>
+          <i class="fa-solid fa-eye" style="color:#4d4d4d;cursor:pointer;"></i>
+        </td>
+      </tr>
+    `;
+  });
+}
+renderIpoTable();
+</script>
+
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination">
+                        <button class="page-arrow" disabled>&lt;</button>
+                        <button class="page-number active">1</button>
+                        <button class="page-number">2</button>
+                        <span class="page-ellipsis">...</span>
+                        <button class="page-number">9</button>
+                        <button class="page-number">10</button>
+                        <button class="page-arrow">&gt;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDropdown() {
+            document.getElementById('userDropdownMenu').classList.toggle('show');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[Bluestock DEBUG] DOMContentLoaded event fired');
+            
+            // User dropdown toggle
+            const userDropdownToggles = document.querySelectorAll('.user-dropdown-toggle');
+            const userDropdownMenu = document.getElementById('userDropdownMenu');
+            
+            userDropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    userDropdownMenu.classList.toggle('show');
+                });
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.matches('.user-dropdown-toggle') && !e.target.closest('.user-dropdown-menu')) {
+                    if (userDropdownMenu && userDropdownMenu.classList.contains('show')) {
+                        userDropdownMenu.classList.remove('show');
+                    }
+                }
+            });
+            
+            if (window.bluestockRouter) {
+                console.log('[Bluestock DEBUG] Forcing window.bluestockRouter.init()');
+                window.bluestockRouter.init();
+            } else {
+                console.error('[Bluestock DEBUG] window.bluestockRouter is not defined!');
+            }
+        });
+    </script>
+    <script>
+        // Fallback Supabase client initialization (allows hard refresh)
+        const SUPABASE_URL = 'https://pyxqwiqvyivyopusgcey.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eHF3aXF2eWl2eW9wdXNnY2V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwOTE1NzEsImV4cCI6MjA2MzY2NzU3MX0.vJEoejN1jgHeU5hcvujKMVuWCHkIy7010N76WXg3_1s';
+        if (!window.supabaseClient && window.supabase) {
+            window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+                auth: {
+                    persistSession: true,
+                    autoRefreshToken: true,
+                    detectSessionInUrl: true
+                }
+            });
+            console.log('[Bluestocks] Supabase client (fallback) initialised in manage-ipo.html');
+        }
+
+        // Immediately use the global Supabase client
+        (function() {
+            const supabase = window.supabaseClient;
+            if (!supabase) {
+                console.error('Supabase client not initialized. Auth features may not work.');
+                return;
+            }
+            try {
+                
+                // Check session immediately
+                window.supabaseClient.auth.getSession().then(({ data, error }) => {
+                    if (!error && data && data.session) {
+                        // Store session data globally
+                        window.authSession = data.session;
+                        
+                        // Get user data
+                        window.supabaseClient.auth.getUser().then(({ data: userData, error: userError }) => {
+                            if (!userError && userData && userData.user) {
+                                // Store user data globally
+                                window.currentUser = userData.user;
+                                // Store user metadata for easy access
+                                window.userMetadata = userData.user.user_metadata || {};
+                            }
+                        });
+                    }
+                });
+            } catch (e) {
+                // Silent error handling in production
+            }
+        })();
+    </script>
+    <script src="../../js/router.js"></script>
+    <script>
+        function toggleDropdown() {
+            document.getElementById('userDropdownMenu').classList.toggle('show');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const userElement = document.querySelector('.user-info .user');
+            const companyBrand = document.getElementById('company-brand');
+            
+            // Link both company brand and user dropdown arrow to toggle the dropdown
+            if (userElement) userElement.addEventListener('click', toggleDropdown);
+            if (companyBrand) companyBrand.addEventListener('click', toggleDropdown);
+            
+            // Close dropdown if clicked outside
+            window.onclick = function(event) {
+                if (!event.target.matches('.user-dropdown-toggle')) {
+                    var dropdowns = document.getElementsByClassName("user-dropdown-menu");
+                    for (var i = 0; i < dropdowns.length; i++) {
+                        var openDropdown = dropdowns[i];
+                        if (openDropdown.classList.contains('show')) {
+                            openDropdown.classList.remove('show');
+                        }
+                    }
+                }
+            }
+
+            // Function to update user display name from auth system
+            async function updateUserName() {
+                try {
+                    // Use the global Supabase client
+                    if (!window.supabaseClient) {
+                        console.error('Supabase client not available for updating user name.');
+                        return;
+                    }
+
+                    const { data, error } = await window.supabaseClient.auth.getUser();
+
+                    if (error) {
+                        console.error('Error fetching user:', error.message);
+                        return;
+                    }
+
+                    if (data && data.user) {
+                        const user = data.user;
+                        const fullName = user.user_metadata.full_name || 'User';
+                        const userDisplayName = document.getElementById('userDisplayName');
+                        if (userDisplayName) {
+                            userDisplayName.textContent = `Hi, ${fullName}`;
+                        }
+                        
+                        // Store name in localStorage for faster subsequent loads
+                        localStorage.setItem('bluestock_user_name', fullName);
+                    } else {
+                        // Fallback to localStorage if no active session
+                        const savedName = localStorage.getItem('bluestock_user_name');
+                        if (savedName) {
+                            const userDisplayName = document.getElementById('userDisplayName');
+                            if (userDisplayName) {
+                                userDisplayName.textContent = `Hi, ${savedName}`;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to update user name:', e.message);
+                }
+            }
+
+            // User authentication check
+            // Get Supabase client directly
+            const supabase = window.supabaseClient;
+            
+            // Direct Supabase authentication check
+            async function directUserCheck() {
+                if (!supabase) {
+                    console.error('Supabase client is not initialized.');
+                    return;
+                }
+                try {
+                    const { data, error } = await supabase.auth.getSession();
+                    if (error) {
+                        console.error('Error getting session:', error.message);
+                        // Redirect to IPO page if there's an error
+                        window.location.href = '/ipo.html?from=error';
+                        return;
+                    }
+                    if (!data || !data.session) {
+                        console.log('No active session found. Redirecting to IPO page.');
+                        // Redirect to IPO page if not authenticated
+                        window.location.href = '/ipo.html?from=nosession';
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Exception during session check:', e.message);
+                    window.location.href = '/ipo.html?from=error';
+                }
+            }
+            
+            // Run direct authentication check and related logic in an async IIFE
+            (async function() {
+                await directUserCheck();
+                await updateUserName();
+
+                // Sample data for the IPO table
+                const ipoData = [
+                    { company: 'Adani Power', priceBand: '₹ 329 - 136', open: '2023-06-03', close: '2024-06-05', issueSize: '45530.15 Cr.', issueType: 'Book Built', listingDate: '2023-06-10', status: 'Ongoing' },
+                    { company: 'VBL LTD', priceBand: '₹ 229 - 136', open: '2024-06-03', close: '2024-06-05', issueSize: '1330.15 Cr.', issueType: 'Book Built', listingDate: '2018-06-10', status: 'Coming' },
+                    { company: 'Tata Motor', priceBand: '₹ 12549 - 136', open: '2024-06-03', close: '2024-06-05', issueSize: '1340.15 Cr.', issueType: 'Book Built', listingDate: '2016-06-10', status: 'New Listed' },
+                    { company: 'HDFC LTD', priceBand: '₹ 1244 - 136', open: '2024-06-03', close: '2024-06-05', issueSize: '830.15 Cr.', issueType: 'Book Built', listingDate: '2029-06-11', status: 'Coming' },
+                    { company: 'Tata Motor', priceBand: '₹ 629 - 136', open: '2024-06-01', close: '2024-06-05', issueSize: '820.15 Cr.', issueType: 'Book Built', listingDate: '2023-06-10', status: 'Ongoing' },
+                    { company: 'VBL LTD', priceBand: '₹ 629 - 136', open: '2024-06-03', close: '2024-06-05', issueSize: '130.15 Cr.', issueType: 'Book Built', listingDate: '2024-06-10', status: 'Coming' },
+                    { company: 'Tata Motor', priceBand: '₹ 6729 - 136', open: '2024-06-03', close: '2024-06-05', issueSize: '170.15 Cr.', issueType: 'Book Built', listingDate: '2027-06-10', status: 'New Listed' },
+                    { company: 'VBL LTD', priceBand: '₹ 1629 - 136', open: '2024-06-03', close: '2024-06-05', issueSize: '130.15 Cr.', issueType: 'Book Built', listingDate: '2022-06-10', status: 'Coming' },
+                    { company: 'Tata Motor', priceBand: '₹ 2329 - 136', open: '2024-06-03', close: '2024-06-05', issueSize: '130.15 Cr.', issueType: 'Book Built', listingDate: '2023-06-10', status: 'New Listed' },
+                    { company: 'VBL LTD', priceBand: '₹ 329 - 136', open: '2024-06-03', close: '2024-06-05', issueSize: '130.15 Cr.', issueType: 'Book Built', listingDate: '2021-06-10', status: 'Coming' },
+                ];
+
+                const tableBody = document.getElementById('ipo-table-body');
+                ipoData.forEach(ipo => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${ipo.company}</td>
+                        <td>${ipo.priceBand}</td>
+                        <td>${ipo.open}</td>
+                        <td>${ipo.close}</td>
+                        <td>${ipo.issueSize}</td>
+                        <td>${ipo.issueType}</td>
+                        <td>${ipo.listingDate}</td>
+                        <td><span class="status-badge status-${ipo.status.toLowerCase().replace(' ', '-')}">${ipo.status}</span></td>
+                        <td><button class="action-btn update-btn">Update</button></td>
+                        <td>
+                            <button class="action-icon delete-icon"><i class="fa-solid fa-trash-can"></i></button>
+                            <button class="action-icon view-icon"><i class="fa-solid fa-eye"></i></button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })();
+
+            // Logout functionality
+            const logoutButton = document.getElementById('logoutBtn');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    console.log('Logout button clicked');
+                    try {
+                        if (!window.supabaseClient) {
+                            console.error('Supabase client not initialized for logout.');
+                            return;
+                        }
+                        const { error } = await window.supabaseClient.auth.signOut();
+                        if (error) {
+                            console.error('Error during sign out:', error.message);
+                            alert('Logout failed. Please try again.');
+                        } else {
+                            console.log('Successfully signed out.');
+                            // Clear local storage for user data
+                            localStorage.removeItem('bluestock_user_name');
+                            // Redirect to the main IPO page after successful logout
+                            window.location.href = '/ipo.html?from=logout'; 
+                        }
+                    } catch (e) {
+                        console.error('Exception during sign out:', e.message);
+                        alert('An unexpected error occurred during logout.');
+                    }
+                });
+            }
+        });
+
+        // Fallback for logout button if it's in a dropdown that might not be immediately available
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', async function() {
+        console.log('Logout button clicked');
+        
+        // Close the dropdown menu
+        const dropdown = document.getElementById('userDropdownMenu');
+        if (dropdown) dropdown.classList.remove('show');
+
+        try {
+            // Clear authentication state from localStorage
+            localStorage.removeItem('bluestock_user_authenticated');
+            localStorage.removeItem('bluestock_user_email');
+            localStorage.removeItem('bluestock_user_name');
+            
+            // Clear session flags
+            sessionStorage.removeItem('adminDashboardLoaded');
+            sessionStorage.removeItem('adminDashboardDirectLoad');
+            
+            // Use router logout if available
+            if (window.bluestockRouter && typeof window.bluestockRouter.signOut === 'function') {
+                console.log('Using router signOut method');
+                await window.bluestockRouter.signOut();
+                return; // Router will handle redirection
+            }
+            
+            // Fallback (if router not available):
+            if (window.supabaseClient) {
+                console.log('Using direct Supabase signOut');
+                await window.supabaseClient.auth.signOut();
+            }
+            
+            // Direct redirection to IPO page
+            console.log('Redirecting to IPO page');
+            window.location.href = '/ipo.html?from=logout';
+        } catch (error) {
+            console.error('Error signing out:', error);
+            // Ensure redirection even if there's an error
+            window.location.href = '/ipo.html?from=logout';
+        }
+    });
+}
+
+    </script>
+</body>
+</html>

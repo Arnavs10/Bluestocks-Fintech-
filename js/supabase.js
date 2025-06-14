@@ -9,19 +9,92 @@ let _supabase = null;
 
 // Function to initialize Supabase
 function initSupabase() {
-  if (!_supabase && window.supabase) {
-    _supabase = window.supabaseClient;
-    if (!_supabase) {
-        alert('Authentication error: Supabase client not initialized. Please reload the page or contact support.');
-        throw new Error('Supabase client not initialized.');
-    }
-    console.log('Supabase client initialized');
+  console.log('Initializing Supabase client in supabase.js');
+  
+  if (!_supabase && typeof supabase !== 'undefined') {
+    _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storageKey: 'sb-pyxqwiqvyivyopusgcey-auth-token'
+      }
+    });
+    
+    // Make it globally available
+    window.supabaseClient = _supabase;
+    console.log('Supabase client initialized and assigned to window.supabaseClient');
+    
+    // Set up auth state change listener
+    _supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[Supabase] Auth state change event:', event);
+      
+      if (event === 'SIGNED_IN') {
+        // Store authentication info in localStorage for better persistence
+        localStorage.setItem('bluestock_user_authenticated', 'true');
+        if (session && session.user) {
+          localStorage.setItem('bluestock_user_email', session.user.email);
+          if (session.user.user_metadata && session.user.user_metadata.full_name) {
+            localStorage.setItem('bluestock_user_name', session.user.user_metadata.full_name);
+          }
+        }
+      } else if (event === 'SIGNED_OUT') {
+        // Clear authentication info from localStorage
+        localStorage.removeItem('bluestock_user_authenticated');
+        localStorage.removeItem('bluestock_user_email');
+        localStorage.removeItem('bluestock_user_name');
+      }
+    });
+    
+    return _supabase;
+  } else if (_supabase) {
+    console.log('Returning existing Supabase client');
+    return _supabase;
+  } else {
+    console.error('Supabase library not loaded. Cannot initialize client.');
+    return null;
   }
-  return _supabase;
 }
 
 // Initialize when document is loaded
 document.addEventListener('DOMContentLoaded', () => {
+  if (!window.supabaseClient && window.supabase) {
+    window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storageKey: 'sb-pyxqwiqvyivyopusgcey-auth-token'
+      }
+    });
+    
+    // Make client available globally
+    _supabase = window.supabaseClient;
+    
+    console.log('Supabase client initialized with explicit persistence settings');
+    
+    // Set up auth state change listener
+    _supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[Supabase] Auth state change event:', event);
+      
+      if (event === 'SIGNED_IN') {
+        // Store authentication info in localStorage for better persistence
+        localStorage.setItem('bluestock_user_authenticated', 'true');
+        if (session && session.user) {
+          localStorage.setItem('bluestock_user_email', session.user.email);
+          if (session.user.user_metadata && session.user.user_metadata.full_name) {
+            localStorage.setItem('bluestock_user_name', session.user.user_metadata.full_name);
+          }
+        }
+      } else if (event === 'SIGNED_OUT') {
+        // Clear authentication info from localStorage
+        localStorage.removeItem('bluestock_user_authenticated');
+        localStorage.removeItem('bluestock_user_email');
+        localStorage.removeItem('bluestock_user_name');
+      }
+    });
+  }
+  
   initSupabase();
 });
 

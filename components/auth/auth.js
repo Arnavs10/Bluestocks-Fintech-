@@ -125,7 +125,7 @@ if (signinForm) {
                 if (window.bluestockRouter && typeof window.bluestockRouter.navigate === 'function') {
                     window.bluestockRouter.navigate('admin-dashboard', true);
                 } else {
-                    window.location.href = '/admin-dashboard';
+                    window.location.href = '/components/dashboard/admin-dashboard.html';
                 }
             }, 1500);
             
@@ -226,33 +226,37 @@ if (googleSignInBtn) {
     });
 }
 
-// Check for existing session on page load
-window.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) throw error;
-        
-        if (data.session) {
-            // Check if user exists in our database
+// Listen for Supabase auth state changes (including initial session)
+supabase.auth.onAuthStateChange(async (event, session) => {
+    console.log('[Auth Debug] onAuthStateChange event:', event, 'session:', session);
+    // When session is restored or user just signed in
+    if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && session) {
+        try {
+            // Verify user exists in our DB before redirecting (prevents false redirects)
             const { data: userData, error: userError } = await supabase
                 .from('users')
                 .select('*')
-                .eq('user_id', data.session.user.id)
+                .eq('user_id', session.user.id)
                 .single();
-                
-            if (!userError && userData) {
-                // User is already signed in, redirect to home page if on auth pages
+
+            if (userError) {
+                console.warn('[Auth Debug] userError during lookup:', userError.message);
+            }
+            if (userData) {
+                console.log('[Auth Debug] userData lookup success:', userData);
                 if (isSignin || isSignup) {
+                    // Redirect authenticated users away from auth pages
                     if (window.bluestockRouter && typeof window.bluestockRouter.navigate === 'function') {
                         window.bluestockRouter.navigate('admin-dashboard', true);
                     } else {
-                        window.location.href = '/admin-dashboard';
+                        window.location.href = '/components/dashboard/admin-dashboard.html';
                     }
                 }
+            } else {
+                console.warn('[Auth Debug] No userData found for this session. No redirect performed.');
             }
+        } catch (err) {
+            console.error('[Auth Debug] Error during user lookup after session restoration:', err);
         }
-    } catch (error) {
-        console.error('Session check error:', error);
     }
 });

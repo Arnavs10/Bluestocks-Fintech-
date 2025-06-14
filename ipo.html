@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bluestock IPO Portal</title>
+    <link rel="icon" type="image/png" href="images/Copy of logo.png">
+    
+    <!-- Load global styles -->
+    <link rel="stylesheet" href="/styles/base.css">
+    <link rel="stylesheet" href="/styles/navbar.css">
+    <link rel="stylesheet" href="/styles/footer.css">
+    <link rel="stylesheet" href="/styles/ipo.css">
+    
+    <!-- Load Supabase from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Load our Supabase initialization helper first -->
+    <script src="/js/supabase-init.js"></script>
+</head>
+<body>
+    <!-- Navigation bar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Main content - IPO page -->
+    <div id="ipo-container"></div>
+    
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Load components
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load navbar
+            fetch('/components/navbar.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('navbar-container').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading navbar:', error);
+                });
+                
+            // Load IPO content
+            fetch('/components/ipo/ipo.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('ipo-container').innerHTML = html;
+                    
+                    // Execute scripts in the loaded HTML
+                    const scripts = document.getElementById('ipo-container').querySelectorAll('script');
+                    scripts.forEach(script => {
+                        const newScript = document.createElement('script');
+                        if (script.src) {
+                            newScript.src = script.src;
+                        } else {
+                            newScript.textContent = script.textContent;
+                        }
+                        document.head.appendChild(newScript);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading IPO content:', error);
+                    document.getElementById('ipo-container').innerHTML = 
+                        '<div class="error-message">Failed to load IPO content. Please try refreshing the page.</div>';
+                });
+                
+            // Load footer
+            fetch('/components/footer.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('footer-container').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading footer:', error);
+                });
+        });
+          // Check for redirect from authentication
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromAuth = urlParams.get('from');
+            
+            if (fromAuth === 'logout') {
+                console.log('Redirected from logout');
+                // Clear any remaining auth data
+                localStorage.removeItem('bluestock_user_authenticated');
+                localStorage.removeItem('bluestock_user_email');
+                localStorage.removeItem('bluestock_user_name');
+                localStorage.removeItem('sb-pyxqwiqvyivyopusgcey-auth-token');
+                sessionStorage.removeItem('adminDashboardLoaded');
+                sessionStorage.removeItem('adminDashboardDirectLoad');
+                
+                // You could display a message here if desired
+                // e.g., "You have been successfully logged out"
+                const notification = document.createElement('div');
+                notification.className = 'logout-notification';
+                notification.innerHTML = 'You have been successfully logged out';
+                notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background-color: #4caf50; color: white; padding: 10px 20px; border-radius: 4px; z-index: 9999; animation: fadeOut 5s forwards;';
+                document.body.appendChild(notification);
+                
+                // Add fade-out animation
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    @keyframes fadeOut {
+                        0% { opacity: 1; }
+                        70% { opacity: 1; }
+                        100% { opacity: 0; visibility: hidden; }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                // Remove notification after animation completes
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

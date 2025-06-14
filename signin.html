@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bluestock - Sign In</title>
+    <link rel="icon" type="image/png" href="images/Copy of logo.png">
+    
+    <!-- Load Supabase from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Load our Supabase initialization helper first -->
+    <script src="js/supabase-init.js"></script>
+</head>
+<body>
+    <div id="signin-container">
+        <!-- The signin component will be loaded here -->
+        Loading sign-in form...
+    </div>
+
+    <script>
+        // Load the signin component
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('signin-container');
+            
+            // Fetch and inject the signin component
+            fetch('/components/auth/signin.html')
+                .then(response => response.text())
+                .then(html => {
+                    container.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading signin component:', error);
+                    container.innerHTML = '<div class="error">Failed to load signin form. Please refresh the page or try again later.</div>';
+                });
+        });
+    </script>
+</body>
+</html>

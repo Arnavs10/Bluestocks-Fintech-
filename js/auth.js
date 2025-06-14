@@ -10,6 +10,50 @@ window.authState = {
   isRedirecting: false // Are we in the middle of a redirect?
 };
 
+// ---------------------------------------------------------------
+// Immediate session preload so other scripts know auth status ASAP
+// ---------------------------------------------------------------
+window.authReady = (async () => {
+  try {
+    // First check for locally stored token before making API call
+    const localAuthData = localStorage.getItem('sb-pyxqwiqvyivyopusgcey-auth-token');
+    const hasLocalStorageToken = !!localAuthData;
+    
+    console.log('[Auth Debug] Local storage token exists:', hasLocalStorageToken);
+    
+    // If we're on admin dashboard, set a flag to prevent redirect loops
+    if (window.location.href.includes('admin-dashboard')) {
+      sessionStorage.setItem('adminDashboardLoaded', 'true');
+    }
+    
+    if (!window.supabaseClient) return; // Supabase not yet ready
+    const { data, error } = await window.supabaseClient.auth.getSession();
+    if (error) throw error;
+
+    const user = data && data.session ? data.session.user : null;
+    window.authState.user = user;
+    window.authState.isAuthenticated = !!user;
+    window.userAuthenticated = !!user;
+    window.currentUser = user;
+    window.authState.initialized = true;
+    
+    // Store session data in localStorage for better persistence
+    if (user && data.session) {
+      localStorage.setItem('bluestock_user_authenticated', 'true');
+      localStorage.setItem('bluestock_user_email', user.email);
+      if (user.user_metadata && user.user_metadata.full_name) {
+        localStorage.setItem('bluestock_user_name', user.user_metadata.full_name);
+      }
+    }
+
+    // Fire an event so listeners (e.g., router) can wait on it
+    const evt = new CustomEvent('authPreloaded', { detail: { user, isAuthenticated: !!user } });
+    document.dispatchEvent(evt);
+  } catch (e) {
+    console.error('[Auth Debug] preload session failed:', e.message);
+  }
+})();
+
 // Use the global Supabase client ONLY
 if (!window.supabaseClient) {
   alert('Authentication error: Supabase client not initialized. Please reload the page or contact support.');
@@ -29,12 +73,11 @@ if (!window.authState.initialized) {
       if (window.authState.isAuthenticated) {
   const currentPath = window.location.pathname.replace(/^\/+/, '').toLowerCase();
   if (currentPath === 'signin' || currentPath === 'signin.html') {
-    console.log('[Auth Debug] Authenticated user on signin page, redirecting to /admin-dashboard');
-    if (window.bluestockRouter && typeof window.bluestockRouter.navigate === 'function') {
-      window.bluestockRouter.navigate('admin-dashboard', true);
-    } else {
-      window.location.href = '/admin-dashboard';
-    }
+    console.log('[Auth Debug] Authenticated user on signin page, redirecting to dashboard');
+    // Set flag to prevent redirect loops
+    sessionStorage.setItem('adminDashboardLoaded', 'true');
+    // Redirect directly to the dashboard URL for more reliability
+    window.location.href = '/components/dashboard/admin-dashboard.html';
   }
 }
     });
@@ -60,6 +103,13 @@ async function checkAuthState() {
     console.log('Redirect in progress, skipping auth check');
     return;
   }
+  
+  // First check for locally stored token before making API call
+  const localAuthData = localStorage.getItem('sb-pyxqwiqvyivyopusgcey-auth-token');
+  const hasLocalStorageToken = !!localAuthData;
+  
+  console.log('[Auth Debug] Local storage token exists:', hasLocalStorageToken);
+  
   try {
     const supabase = getClient();
     if (!supabase) throw new Error('Supabase client not initialized');
@@ -74,6 +124,16 @@ async function checkAuthState() {
     window.authState.initialized = true;
     window.userAuthenticated = !!user;
     window.currentUser = user;
+    
+    // Store session data in localStorage for better persistence
+    if (user && data.session) {
+      localStorage.setItem('bluestock_user_authenticated', 'true');
+      localStorage.setItem('bluestock_user_email', user.email);
+      if (user.user_metadata && user.user_metadata.full_name) {
+        localStorage.setItem('bluestock_user_name', user.user_metadata.full_name);
+      }
+    }
+    
     // Dispatch auth event for other listeners
     const authInitEvent = new CustomEvent('authInitialized', { 
       detail: { user: user, isAuthenticated: !!user } 
@@ -83,20 +143,49 @@ async function checkAuthState() {
     const currentPath = window.location.pathname;
     const cleanPath = currentPath.replace(/^\/+/, '');
     const adminDashboardLoaded = sessionStorage.getItem('adminDashboardLoaded') === 'true';
-    const isAdminDashboardPath = cleanPath.startsWith('admin-dashboard');
+    const isAdminDashboardPath = cleanPath.startsWith('admin-dashboard') || cleanPath.startsWith('dashboard');
+    
+    // Check if we're on admin dashboard and have an authentication token
+    if (isAdminDashboardPath) {
+      // Always set the flag to prevent redirect loops on reloads
+      sessionStorage.setItem('adminDashboardLoaded', 'true');
+      
+      // If we have a user, just update the state
+      if (user) {
+        window.authState.isAdmin = true;
+        return;
+      }
+      
+      // If no user but we have a token, attempt to keep the session
+      const hasAuthToken = !!localStorage.getItem('sb-pyxqwiqvyivyopusgcey-auth-token');
+      const hasBluestockAuth = localStorage.getItem('bluestock_user_authenticated') === 'true';
+      
+      if (hasAuthToken || hasBluestockAuth) {
+        console.log('[Auth Debug] No user but auth token exists, attempting to restore session');
+        // Force refresh the session to try to recover it
+        try {
+          const refreshResult = await supabase.auth.refreshSession();
+          if (refreshResult.data && refreshResult.data.session) {
+            console.log('[Auth Debug] Session refreshed successfully');
+            return; // Stay on the page if refresh succeeded
+          }
+        } catch (refreshError) {
+          console.error('[Auth Debug] Failed to refresh session:', refreshError);
+        }
+      }
+    }
+    
     if (user) {
       window.authState.isAdmin = true;
-      if (isAdminDashboardPath && !adminDashboardLoaded) {
-        sessionStorage.setItem('adminDashboardLoaded', 'true');
-      }
       return;
     }
+    
     // Not logged in, redirect if on protected page
-    if ((cleanPath.startsWith('dashboard') || cleanPath.startsWith('admin-dashboard')) && 
+    if ((cleanPath.startsWith('dashboard') || cleanPath.startsWith('admin-dashboard') || cleanPath === 'dashboard' || cleanPath === 'admin-dashboard') && 
         !window.location.pathname.includes('signin')) {
       window.authState.isRedirecting = true;
       console.log('Redirecting unauthenticated user from protected page to signin');
-      redirectToPage('/signin');
+      redirectToPage('/components/auth/signin.html');
     }
   } catch (error) {
     console.error('[Auth Debug] Error checking authentication state:', error);
@@ -119,8 +208,16 @@ function redirectToPage(path) {
   }
   
   // Set session storage flag for admin dashboard to prevent reload loops
-  if (cleanPath.startsWith('admin-dashboard')) {
+  if (cleanPath.startsWith('admin-dashboard') || cleanPath.startsWith('dashboard')) {
+    console.log(`Setting adminDashboardLoaded flag to prevent loops`);
     sessionStorage.setItem('adminDashboardLoaded', 'true');
+    
+    // For dashboard redirects, use direct URL for more reliability
+    if (cleanPath === 'dashboard' || cleanPath === 'admin-dashboard') {
+      console.log(`Using direct URL for dashboard redirect`);
+      window.location.href = '/components/dashboard/admin-dashboard.html';
+      return;
+    }
   } else if (cleanPath.startsWith('signin') || cleanPath.startsWith('signup')) {
     sessionStorage.removeItem('adminDashboardLoaded');
   }

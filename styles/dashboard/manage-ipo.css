@@ -1,0 +1,215 @@
+/* styles/dashboard/manage-ipo.css */
+
+.ipo-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+.ipo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.ipo-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.btn-primary {
+    background-color: #6759ff;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #5640ff;
+}
+
+.ipo-table-container {
+    overflow-x: auto;
+}
+
+.ipo-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ipo-table th, .ipo-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+    white-space: nowrap;
+}
+
+.ipo-table th {
+    font-weight: 600;
+    color: #888;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.ipo-table td {
+    font-size: 14px;
+    color: #333;
+}
+
+.status {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    display: inline-block;
+}
+
+.status.ongoing {
+    background-color: #e6f7f0;
+    color: #00bfa5;
+}
+
+.status.comming {
+    background-color: #fff8e1;
+    color: #ffab00;
+}
+
+.status.new-listed {
+    background-color: #ffebee;
+    color: #f44336;
+}
+
+.action-btn {
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.update-btn {
+    background-color: #6759ff;
+    color: white;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #888;
+    margin-left: 10px;
+}
+
+.icon-btn:hover {
+    color: #333;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.page-link {
+    color: #555;
+    padding: 8px 12px;
+    text-decoration: none;
+    margin: 0 4px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.page-link:hover, .page-link.active {
+    background-color: #6759ff;
+    color: #fff;
+    border-color: #6759ff;
+}
+
+.page-link.prev, .page-link.next {
+    font-size: 12px;
+}
+
+.page-dots {
+    padding: 8px;
+    color: #888;
+}
+
+/* Modal Styles */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1050; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 25px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 550px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#modal-title {
+    margin-bottom: 20px;
+}
+
+#ipo-form .form-group {
+    margin-bottom: 15px;
+}
+
+#ipo-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+#ipo-form input, #ipo-form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}

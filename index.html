@@ -3,7 +3,7 @@
 <head>
     <link rel="icon" type="image/png" href="images/Copy of logo.png">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bluestock</title>
     <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/dashboard.css">
@@ -15,19 +15,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     
     <!-- Inline styles for responsive design and page transitions -->
-    <!-- Include Supabase client directly from CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Initialize Supabase client ONCE globally with persistSession: true -->
-    <script>
-        const SUPABASE_URL = 'https://pyxqwiqvyivyopusgcey.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eHF3aXF2eWl2eW9wdXNnY2V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwOTE1NzEsImV4cCI6MjA2MzY2NzU3MX0.vJEoejN1jgHeU5hcvujKMVuWCHkIy7010N76WXg3_1s';
-        window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-            auth: {
-                persistSession: true
-            }
-        });
-        console.log('Supabase client initialized globally with persistSession: true');
-    </script>
     
     <style>
         @media (max-width: 768px) {
@@ -97,7 +84,13 @@
 </head>
 <body>
     <!-- Component containers -->
-    <div id="navbar-container"></div>
+    <div id="navbar-container">
+        <!-- Bluestocks: Added SPA navigation links for dashboard and manage IPO -->
+        <nav class="spa-nav">
+            <a href="#" data-route="dashboard">Dashboard</a>
+            <a href="#" data-route="manage-ipo">Manage IPO</a>
+        </nav>
+    </div>
     <div id="content-container"></div>
     <div id="footer-container"></div>
     
@@ -105,6 +98,27 @@
     <div class="page-loader">
         <div class="loader-spinner"></div>
     </div>
+
+    <!-- Scripts -->
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Initialize Supabase client -->
+    <script>
+        const SUPABASE_URL = 'https://pyxqwiqvyivyopusgcey.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eHF3aXF2eWl2eW9wdXNnY2V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwOTE1NzEsImV4cCI6MjA2MzY2NzU3MX0.vJEoejN1jgHeU5hcvujKMVuWCHkIy7010N76WXg3_1s';
+        window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth: {
+                persistSession: true
+            }
+        });
+        console.log('Supabase client initialized globally at end of body.');
+    </script>
+
+    <!-- App Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/manage-ipo.js"></script>
 
     <!-- Direct mobile menu toggle script for reliable functionality -->
     <script>
@@ -309,10 +323,13 @@
                     return;
                 }
                 
-                const path = window.location.pathname.toLowerCase();
+                // Prefer route from hash (#/dashboard) to support SPA navigation without changing directory
+                const rawHash = window.location.hash || '';
+                let routeFromHash = rawHash.startsWith('#/') ? rawHash.slice(2) : (rawHash.startsWith('#') ? rawHash.slice(1) : '');
                 
-                // Extract route without leading slash for more consistent matching
-                const cleanPath = path.replace(/^\/+/, '');
+                // Fallback to pathname if no hash route
+                const path = window.location.pathname.toLowerCase();
+                const cleanPath = routeFromHash || path.replace(/^\/+/,'');
                 
                 // Store current route in session storage to help with page reloads
                 sessionStorage.setItem('currentRoute', cleanPath);
@@ -482,7 +499,7 @@
                 });
                 
                 // Extract route without leading slash for more consistent matching
-                const cleanPath = path.replace(/^\/+/, '');
+                const cleanPath = path.replace(/^\/+/,'');
                 
                 // Then add active class to current link based on cleaned path
                 if (cleanPath.startsWith('ipo')) {
@@ -538,5 +555,40 @@
             });
         });
     </script>
+<script>
+// SPA Route Table
+const SPA_ROUTES = {
+    'dashboard': '/components/dashboard/admin-dashboard.html',
+    'manage-ipo': '/components/dashboard/manage-ipo.html'
+};
+
+// SPA Navigation Handler
+function handleSpaNavigation(route) {
+    const url = SPA_ROUTES[route];
+    if (url) {
+        // Optionally show loader
+        const container = document.getElementById('content-container');
+        if (container) {
+            container.innerHTML = '<div style="padding:2em;text-align:center;">Loading...</div>';
+            fetch(url)
+                .then(resp => resp.text())
+                .then(html => { container.innerHTML = html; })
+                .catch(() => { container.innerHTML = '<div style="color:red;">Failed to load page.</div>'; });
+        }
+    }
+}
+
+// Listen for SPA navigation clicks
+window.addEventListener('DOMContentLoaded', function() {
+    document.body.addEventListener('click', function(e) {
+        const link = e.target.closest('a[data-route]');
+        if (link) {
+            e.preventDefault();
+            const route = link.getAttribute('data-route');
+            handleSpaNavigation(route);
+        }
+    });
+});
+</script>
 </body>
 </html>

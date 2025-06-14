@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Bluestock Fintech</title>
-    <!-- Authentication persistence handler - loads first to prevent redirect issues -->    <script src="../../js/admin-auth-persistence.js"></script>
+    <!-- Authentication persistence handler - loads first to prevent redirect issues -->
+    <script src="../../js/admin-auth-persistence.js"></script>
     <link rel="stylesheet" href="../../styles/dashboard/admin-dashboard.css">
-    <link rel="stylesheet" href="../../styles/dashboard/dropdown.css">
-    <link rel="stylesheet" href="../../styles/dashboard/dropdown-reset.css">
     <!-- Using Font Awesome 6 for all icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -186,12 +186,12 @@
                     <div class="user">
                         <div class="user-avatar">
                             <div class="avatar-circle"></div>
-                        </div>                        <div class="user-dropdown-container">
-                            <span id="userDisplayName" class="user-dropdown-toggle" tabindex="0">Hi, User</span>                            <i class="fa-solid fa-chevron-down user-dropdown-toggle" tabindex="0"></i>
+                        </div>
+                        <div class="user-dropdown-container">
+                            <span id="userDisplayName" class="user-dropdown-toggle" tabindex="0">Hi, User</span>
+                            <i class="fa-solid fa-chevron-down user-dropdown-toggle" tabindex="0"></i>
                             <div id="userDropdownMenu" class="user-dropdown-menu">
-                                <button id="logoutBtn" class="logout-btn">
-                                    <i class="fa-solid fa-sign-out-alt"></i> Logout
-                                </button>
+                                <button id="logoutBtn" class="logout-btn">Logout</button>
                             </div>
                         </div>
                         <!-- Direct name update script -->
@@ -343,33 +343,65 @@
                 </div>
             </div>
         </div>
-    </div>    <script>        document.addEventListener('DOMContentLoaded', function() {
-            // User dropdown toggle - Simplified implementation
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // User dropdown toggle
             const userDropdownToggles = document.querySelectorAll('.user-dropdown-toggle');
             const userDropdownMenu = document.getElementById('userDropdownMenu');
             
-            if (userDropdownToggles.length > 0 && userDropdownMenu) {
-                // Add click event to toggle elements
-                userDropdownToggles.forEach(toggle => {
+            userDropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    userDropdownMenu.classList.toggle('show');
+                });
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.matches('.user-dropdown-toggle') && !e.target.closest('.user-dropdown-menu')) {
+                    if (userDropdownMenu.classList.contains('show')) {
+                        userDropdownMenu.classList.remove('show');
+                    }
+                }
+            });
+            
+            // Dropdown logic for user menu
+            const toggles = document.querySelectorAll('.user-dropdown-toggle');
+            const dropdown = document.getElementById('userDropdownMenu');
+            
+            if (toggles && dropdown) {
+                toggles.forEach(function(toggle) {
                     toggle.addEventListener('click', function(e) {
-                        e.preventDefault();
+                        console.log('Dropdown toggle clicked'); // DEBUG ONLY
                         e.stopPropagation();
-                        userDropdownMenu.classList.toggle('show');
+                        dropdown.classList.toggle('show');
+                    });
+                    
+                    toggle.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            dropdown.classList.toggle('show');
+                        }
                     });
                 });
                 
-                // Close when clicking outside
-                document.addEventListener('click', function(e) {
-                    const isClickInside = e.target.closest('.user-dropdown-container');
-                    if (!isClickInside && userDropdownMenu.classList.contains('show')) {
-                        userDropdownMenu.classList.remove('show');
-                    }
+                document.addEventListener('click', function() {
+                    dropdown.classList.remove('show');
+                });
+                
+                dropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
                 });
             }
             
             // Logout button logic
-            const logoutBtn = document.getElementById('logoutBtn');            if (logoutBtn) {
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
                 logoutBtn.addEventListener('click', async function() {
+                    console.log('Logout button clicked');
+                    
                     // Close the dropdown menu
                     const dropdown = document.getElementById('userDropdownMenu');
                     if (dropdown) dropdown.classList.remove('show');
@@ -386,31 +418,39 @@
                         
                         // Use router logout if available
                         if (window.bluestockRouter && typeof window.bluestockRouter.signOut === 'function') {
+                            console.log('Using router signOut method');
                             await window.bluestockRouter.signOut();
                             return; // Router will handle redirection
                         }
                         
                         // Fallback (if router not available):
                         if (window.supabaseClient) {
+                            console.log('Using direct Supabase signOut');
                             await window.supabaseClient.auth.signOut();
                         }
+                        
                         // Direct redirection to IPO page
-                        window.location.href = '/ipo.html?from=logout';
+                        console.log('Redirecting to IPO page');
+                        window.location.href = '/ipo';
                     } catch (error) {
                         console.error('Error signing out:', error);
                         // Ensure redirection even if there's an error
-                        window.location.href = '/ipo.html?from=logout';
+                        window.location.href = '/ipo';
                     }
                 });
             }
         });
-    </script>    <script src="../../js/router.js"></script>
+    </script>
+    
+    <script src="../../js/router.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('[Bluestock DEBUG] DOMContentLoaded event fired');
             if (window.bluestockRouter) {
+                console.log('[Bluestock DEBUG] Forcing window.bluestockRouter.init()');
                 window.bluestockRouter.init();
             } else {
-                console.error('window.bluestockRouter is not defined!');
+                console.error('[Bluestock DEBUG] window.bluestockRouter is not defined!');
             }
         });
     </script>

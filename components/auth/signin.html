@@ -64,19 +64,46 @@
 
     <!-- Load Supabase JavaScript SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Load our Supabase initialization helper first -->
+    <script src="../../js/supabase-init.js"></script>
     <script>
         // Self-contained authentication script
         (async function() {
             console.log('%c SIGNIN COMPONENT LOADED', 'background: #4CAF50; color: white; font-size: 16px; padding: 4px 8px;');
             
-            // Always use the global Supabase client
+            // Initialize Supabase client if not already available
             let client = window.supabaseClient;
             if (!client) {
-                alert('Authentication error: Supabase client not initialized. Please reload the page or contact support.');
-                throw new Error('Supabase client not initialized.');
+                console.log('Initializing Supabase client in signin.html');
+                try {
+                    const SUPABASE_URL = 'https://pyxqwiqvyivyopusgcey.supabase.co';
+                    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5eHF3aXF2eWl2eW9wdXNnY2V5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwOTE1NzEsImV4cCI6MjA2MzY2NzU3MX0.vJEoejN1jgHeU5hcvujKMVuWCHkIy7010N76WXg3_1s';
+                    
+                    // Check if the supabase object is available globally
+                    if (typeof supabase !== 'undefined') {
+                        client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+                            auth: {
+                                persistSession: true,
+                                autoRefreshToken: true,
+                                detectSessionInUrl: true,
+                                storageKey: 'sb-pyxqwiqvyivyopusgcey-auth-token'
+                            }
+                        });
+                        window.supabaseClient = client;
+                        console.log('Supabase client successfully initialized');
+                    } else {
+                        console.error('Supabase library not found in global scope');
+                        throw new Error('Supabase library not available. Please check your network connection and reload the page.');
+                    }
+                } catch (error) {
+                    console.error('Failed to initialize Supabase client:', error);
+                    errorMessage.textContent = 'Authentication service initialization failed. Please reload the page or try again later.';
+                    errorMessage.classList.remove('hidden');
+                    throw error;
+                }
+            } else {
+                console.log('Using existing Supabase client from window.supabaseClient');
             }
-            
-            // Client is guaranteed to exist here.
             
             // Test the connection
             client.auth.getSession().then(({ data, error }) => {
@@ -88,18 +115,19 @@
                     // If user is already authenticated, redirect to dashboard
                     if (data && data.session) {
                         console.log('User already authenticated, redirecting to dashboard');
-                        // Don't redirect if already on signin page to prevent loops
-                        if (window.location.pathname.toLowerCase().replace(/^\/+/, '') === 'signin') {
-                            console.log('Already on signin page, not redirecting');
-                            return;
+                        
+                        // Store user data for better persistence
+                        localStorage.setItem('bluestock_user_authenticated', 'true');
+                        localStorage.setItem('bluestock_user_email', data.session.user.email);
+                        if (data.session.user.user_metadata && data.session.user.user_metadata.full_name) {
+                            localStorage.setItem('bluestock_user_name', data.session.user.user_metadata.full_name);
                         }
                         
-                        // Use the app's routing pattern instead of direct URL
-                        if (typeof redirectToPage === 'function') {
-                            redirectToPage('admin-dashboard');
-                        } else {
-                            window.location.href = 'admin-dashboard';
-                        }
+                        // Set flag to prevent redirect loops on admin dashboard
+                        sessionStorage.setItem('adminDashboardLoaded', 'true');
+                        
+                        // Redirect directly to dashboard URL instead of using route names
+                        window.location.href = '/components/dashboard/admin-dashboard.html';
                     }
                 }
             });
@@ -142,18 +170,21 @@
                     try {
                         console.log('Attempting sign in with email:', email);
                         
-                        // Get remember me preference
+                        // Always use local persistence for better user experience
+                        console.log('Using local persistence for all sign-ins to prevent redirect issues');
+                        
+                        // Store remember me preference for UI state only
                         const rememberMe = document.getElementById('rememberMe');
-                        const persistenceType = rememberMe && rememberMe.checked ? 'local' : 'none';
+                        if (rememberMe && rememberMe.checked) {
+                            localStorage.setItem('rememberMe', 'true');
+                        }
                         
-                        console.log('Persistence type:', persistenceType);
-                        
-                        // Attempt to sign in with persistence option
+                        // Attempt to sign in with persistence always enabled
                         const { data, error } = await client.auth.signInWithPassword({
                             email,
                             password,
                             options: {
-                                persistSession: persistenceType === 'local'
+                                persistSession: true // Always persist session
                             }
                         });
                         
@@ -165,6 +196,16 @@
                         // Success!
                         console.log('User signed in successfully:', data.user.email);
                         console.log('User data:', data.user);
+                        
+                        // Store user data for better persistence
+                        localStorage.setItem('bluestock_user_authenticated', 'true');
+                        localStorage.setItem('bluestock_user_email', data.user.email);
+                        if (data.user.user_metadata && data.user.user_metadata.full_name) {
+                            localStorage.setItem('bluestock_user_name', data.user.user_metadata.full_name);
+                        }
+                        
+                        // Set flag to prevent redirect loops on admin dashboard
+                        sessionStorage.setItem('adminDashboardLoaded', 'true');
                         
                         // Store whether the user chose to be remembered
                         if (rememberMe && rememberMe.checked) {
@@ -224,12 +265,12 @@
                                     } else {
                                         // Fallback: Use direct navigation
                                         console.log('Using direct navigation for admin dashboard redirect');
-                                        window.location.href = '/admin-dashboard';
+                                        window.location.href = '/components/dashboard/admin-dashboard.html';
                                     }
                                 } catch (navigationError) {
                                     console.error('Navigation error:', navigationError);
                                     // Ultimate fallback
-                                    window.location.href = '/admin-dashboard';
+                                    window.location.href = '/components/dashboard/admin-dashboard.html';
                                 }
                                 
                                 // Reset redirect flag after redirect completes
