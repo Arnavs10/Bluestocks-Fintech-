@@ -541,45 +541,14 @@ function handleViewAllIPOs() {
         return;
     }
     
-    const upcomingSection = document.querySelector('.upcoming-ipos-section');
-    const sliderContainer = upcomingSection.querySelector('.ipo-slider-container');
-    const cardsWrapper = upcomingSection.querySelector('.ipo-cards-wrapper');
-    const sliderDots = upcomingSection.querySelector('.slider-dots');
-    
     viewAllBtn.addEventListener('click', (event) => {
         event.preventDefault();
         
-        // Toggle between expanded and slider view
-        const isExpanded = upcomingSection.classList.toggle('expanded-view');
-        
-        if (isExpanded) {
-            // Change to expanded view
-            viewAllBtn.textContent = 'Show Less';
-            cardsWrapper.style.flexWrap = 'wrap';
-            cardsWrapper.style.overflow = 'visible';
-            cardsWrapper.style.justifyContent = 'center';
-            sliderDots.style.display = 'none';
-            
-            // Hide slider arrows when expanded
-            const arrows = sliderContainer.querySelectorAll('.slider-arrow');
-            arrows.forEach(arrow => arrow.style.display = 'none');
+        // Navigate to the all-upcoming page
+        if (window.bluestockRouter) {
+            window.bluestockRouter.navigate('all-upcoming');
         } else {
-            // Revert to slider view
-            viewAllBtn.textContent = 'View All';
-            cardsWrapper.style.flexWrap = 'nowrap';
-            cardsWrapper.style.overflow = 'auto';
-            cardsWrapper.style.justifyContent = 'flex-start';
-            sliderDots.style.display = 'flex';
-            
-            // Show slider arrows
-            const arrows = sliderContainer.querySelectorAll('.slider-arrow');
-            arrows.forEach(arrow => arrow.style.display = 'flex');
-            
-            // Reset scroll position
-            cardsWrapper.scrollTo({
-                left: 0,
-                behavior: 'smooth'
-            });
+            window.location.href = '/ipo-all-upcoming.html';
         }
     });
 }

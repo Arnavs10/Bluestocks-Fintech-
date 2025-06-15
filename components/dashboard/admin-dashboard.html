@@ -259,26 +259,31 @@
                     
                     <div class="ipo-stats">
                         <p class="stat-item"><span class="arrow-up">↑</span> 20 IPO in Gain</p>
-                    </div>
-                    
-                    <div class="ipo-image-charts">
+                    </div>                    <div class="ipo-image-charts">
                         <div class="ipo-image-chart-item chart-loss">
                             <img src="../../images/icons/chart-1.png" alt="IPO in Loss Chart">
+                            <div>
+                                <div class="chart-number">9</div>
+                                <div class="chart-text">IPO in Loss</div>
+                            </div>
                         </div>
                         <div class="ipo-image-chart-item chart-gain">
                             <img src="../../images/icons/chart-2.png" alt="IPO in Gain Chart">
-                            <div class="chart-label">
+                            <div>
+                                <div class="chart-number">20</div>
+                                <div class="chart-text">IPO in Gain</div>
                             </div>
                         </div>
                         <div class="ipo-image-chart-item chart-total">
                             <img src="../../images/icons/chart-3.png" alt="Total IPO Chart">
-                            <div class="chart-label">
+                            <div>
+                                <div class="chart-number">30</div>
+                                <div class="chart-text">Total IPO</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Quick Links Section -->
+                  <!-- Quick Links Section -->
                 <div class="widget quick-links">
                     <h2>Quick Links</h2>
                     <p>Adipiscing elit, sed do eiusmod tempor</p>
@@ -286,43 +291,44 @@
                     <ul class="links-list">
                         <li>
                             <div class="link-icon nse"><img src="../../images/Company LOGO/NSE.png" alt="NSE Logo" /></div>
-                            <span>NSE India</span>
+                            <div class="link-text">NSE India</div>
                             <a href="#" class="visit-now">Visit Now</a>
                         </li>
                         <li>
                             <div class="link-icon bse"><img src="../../images/Company LOGO/BSE.png" alt="BSE Logo" /></div>
-                            <span>BSE India</span>
+                            <div class="link-text">BSE India</div>
                             <a href="#" class="visit-now">Visit Now</a>
                         </li>
                         <li>
                             <div class="link-icon sebi"><img src="../../images/Company LOGO/SEBI.png" alt="SEBI Logo" /></div>
-                            <span>SEBI</span>
+                            <div class="link-text">SEBI</div>
                             <a href="#" class="visit-now">Visit Now</a>
                         </li>
                         <li>
                             <div class="link-icon money-control"><img src="../../images/Company LOGO/moneyControl.png" alt="Money Control Logo" /></div>
-                            <span>Money Control</span>
+                            <div class="link-text">Money Control</div>
                             <a href="#" class="visit-now">Visit Now</a>
                         </li>
                     </ul>
                 </div>
-                
-                <!-- Main Board IPO -->
+                  <!-- Main Board IPO -->
                 <div class="widget main-board">
                     <div class="board-header">
-                        <h2>Main Board IPO</h2>
+                        <div>
+                            <h2>Main Board IPO</h2>
+                            <p class="board-subtitle">From 01 Jan 2024</p>
+                        </div>
                         <a href="#" class="view-report">View Report</a>
                     </div>
-                    <p class="board-subtitle">From 01 Jan 2024</p>
-                    
-                    <div class="main-board-image-container">
-                        <img src="../../images/icons/rightchart.png" alt="Main Board IPO Chart">
+                      <div class="donut-chart-container">
+                        <canvas id="mainBoardDonutChart"></canvas>
                         <div class="chart-tooltip">
-                            <p>Afternoon</p>
-                            <p>IPO NSE & BSE</p>
+                            <p class="tooltip-title">Afternoon</p>
+                            <p class="tooltip-subtitle">IPO NSE & BSE</p>
                             <p class="tooltip-value">15</p>
                         </div>
                     </div>
+                    
                     <div class="main-board-legend">
                         <div class="legend-item">
                             <span class="legend-dot upcoming"></span>
@@ -340,6 +346,41 @@
                             <span class="legend-count">2</span>
                         </div>
                     </div>
+                    
+                    <!-- Chart.js script for Main Board IPO donut chart -->
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const ctx = document.getElementById('mainBoardDonutChart').getContext('2d');
+                            const mainBoardDonutChart = new Chart(ctx, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: ['Upcoming', 'New Listed', 'Ongoing'],
+                                    datasets: [{
+                                        data: [15, 25, 2],
+                                        backgroundColor: [
+                                            '#6366F1', // Upcoming - darker blue
+                                            '#A5B4FC', // New Listed - medium blue
+                                            '#E0E7FF'  // Ongoing - light blue
+                                        ],
+                                        borderWidth: 0,
+                                        cutout: '70%'
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            display: false
+                                        },
+                                        tooltip: {
+                                            enabled: false
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    </script>
                 </div>
             </div>
         </div>

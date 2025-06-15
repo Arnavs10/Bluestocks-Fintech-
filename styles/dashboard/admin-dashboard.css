@@ -452,6 +452,7 @@ body {
 /* IPO Dashboard Widget */
 .ipo-dashboard {
     grid-column: 1;
+    min-height: 320px;
 }
 
 .ipo-stats {
@@ -468,45 +469,128 @@ body {
     margin-right: 5px;
 }
 
-.chart-container {
+/* IPO Image Charts - Updated to match the design */
+.ipo-image-charts {
+    display: flex;
     position: relative;
-    width: 250px;
-    height: 250px;
-    margin: 0 auto;
+    height: 220px;
+    margin-top: 25px;
+    margin-left: 40px;
 }
 
-.chart-center-text {
+.ipo-image-chart-item {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    color: white;
     text-align: center;
-}
-
-.big-number {
-    font-size: 32px;
     font-weight: bold;
-    color: #333;
 }
 
-.small-label {
-    font-size: 12px;
-    color: #777;
+.chart-loss {
+    width: 120px;
+    height: 120px;
+    background-color: #7879F1; /* Updated Purple */
+    left: 25px;
+    top: 5px;
+    z-index: 3;
+}
+
+.chart-gain {
+    width: 120px;
+    height: 120px;
+    background-color: #39E1D7; /* Teal */
+    left: 0;
+    bottom: 10px;
+    z-index: 2;
+}
+
+.chart-total {
+    width: 170px;
+    height: 170px;
+    background-color: #FFA726; /* Orange */
+    left: 110px;
+    top: 20px;
+    z-index: 1;
+}
+
+/* Chart borders to match the design */
+.chart-loss:before,
+.chart-gain:before,
+.chart-total:before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border: 2px solid;
+    border-radius: 50%;
+    opacity: 0.7;
+}
+
+.chart-loss:before {
+    border-color: rgba(137, 128, 245, 0.5);
+}
+
+.chart-gain:before {
+    border-color: rgba(57, 225, 215, 0.5);
+}
+
+.chart-total:before {
+    border-color: rgba(255, 167, 38, 0.5);
+}
+
+.chart-loss:after,
+.chart-gain:after,
+.chart-total:after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    border: 1px solid;
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+.chart-loss:after {
+    border-color: rgba(137, 128, 245, 0.3);
+}
+
+.chart-gain:after {
+    border-color: rgba(57, 225, 215, 0.3);
+}
+
+.chart-total:after {
+    border-color: rgba(255, 167, 38, 0.3);
+}
+
+.ipo-image-chart-item img {
+    display: none; /* Hide the images since we're using CSS for the charts */
 }
 
 /* Quick Links Widget */
 .quick-links {
     grid-column: 2;
+    min-height: 320px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 25px 25px 15px 25px;
 }
 
 .quick-links h2 {
-    margin-bottom: 5px;
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: #333;
 }
 
 .quick-links p {
     color: #777;
-    font-size: 14px;
-    margin-bottom: 20px;
+    font-size: 15px;
+    margin-bottom: 30px;
 }
 
 .links-list {
@@ -516,31 +600,61 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    gap: 5px;
 }
 
 .links-list li {
     display: flex;
     align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f5f5f5;
+    justify-content: space-between;
+    padding: 20px 0;
+    position: relative;
+    margin-bottom: 0;
 }
 
-.links-list li:last-child {
-    border-bottom: none;
+.links-list li:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 65px;
+    right: 0;
+    height: 1px;
+    background-color: #f0f0f0;
+}
+
+.links-list li:last-child:after {
+    display: none;
 }
 
 .link-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: 50px;
+    height: 50px;
     margin-right: 15px;
-    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 5px;
 }
 
-.link-icon img {
-    width: 32px;
-    height: 32px;
-    object-fit: contain;
+.link-icon:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+}
+
+/* Simply display logos without background */
+
+/* All logos are displayed at full size */
+
+.link-text {
+    flex: 1;
+    padding-left: 10px;
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
 }
 
 .user-dropdown-container {
@@ -552,98 +666,150 @@ body {
 .user-dropdown-toggle {
     cursor: pointer;
     outline: none;
-    -webkit--webkit-user-select: none;
-    user-select: none;
     -webkit-user-select: none;
     user-select: none;
 }
 
-.links-list span {
-    flex: 1;
+.visit-now {
+    color: #6366F1;
+    opacity: 0.7;
     font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
 }
 
-.visit-now {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 500;
+/* Simple hover effect */
+.visit-now:hover {
+    opacity: 1;
 }
 
 /* Main Board IPO Widget */
 .main-board {
-    grid-column: 1 / 3;
-    grid-row: 2 / 3;
+    grid-column: 3 / 4;
+    grid-row: 1 / 2;
+    min-height: 320px;
 }
 
 .board-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .board-header h2 {
+    font-size: 20px;
     margin-bottom: 5px;
+    color: #333;
 }
 
-.board-header p {
+.board-subtitle {
     color: #777;
     font-size: 14px;
     margin: 0;
+    margin-top: 3px;
 }
 
 .view-report {
-    color: var(--primary-color);
+    color: #6366F1;
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
+    opacity: 0.8;
+    padding: 8px 15px;
+    background: #f5f5f5;
+    border-radius: 4px;
 }
 
-.main-board-chart {
-    height: 320px;
+.view-report:hover {
+    opacity: 1;
 }
 
-.legend-container {
-    margin-top: 30px;
+/* Donut Chart Container */
+.donut-chart-container {
+    position: relative;
+    height: 220px;
+    width: 220px;
+    margin: 0 auto 20px;
+    padding-top: 20px; /* Add padding to accommodate the tooltip */
+}
+
+/* Chart Tooltip */
+.chart-tooltip {
+    position: absolute;
+    top: -10px;
+    right: -30px;
+    background-color: #3D4465;
+    color: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 140px;
+    z-index: 10;
+}
+
+.tooltip-title {
+    font-size: 15px;
+    margin: 0 0 2px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.tooltip-subtitle {
+    font-size: 12px;
+    margin: 0 0 5px;
+    opacity: 0.8;
+    color: #ddd;
+}
+
+.tooltip-value {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    color: #fff;
+}
+
+/* Legend Styling */
+.main-board-legend {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    margin-bottom: 12px;
+    font-size: 14px;
 }
 
 .legend-dot {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    margin-right: 10px;
+    margin-right: 5px;
+    display: inline-block;
 }
 
 .legend-dot.upcoming {
-    background-color: #6D62EF;
+    background-color: #6366F1; /* darker blue */
 }
 
 .legend-dot.new-listed {
-    background-color: #9595F8;
+    background-color: #A5B4FC; /* medium blue */
 }
 
 .legend-dot.ongoing {
-    background-color: #E0DFFD;
+    background-color: #E0E7FF; /* light blue */
 }
 
-.legend-item span {
-    font-size: 14px;
+.legend-label {
     color: #555;
-}
-
-.legend-item span:nth-child(2) {
-    flex: 1;
+    margin-right: 5px;
 }
 
 .legend-count {
-    font-weight: 600;
+    font-weight: bold;
     color: #333;
 }
 
@@ -924,14 +1090,22 @@ body {
 }
 
 .link-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 15px;
-    color: white;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 5px;
+}
+
+.link-icon:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
 }
 
 .nse {
@@ -1078,6 +1252,24 @@ body {
     text-align: center;
 }
 
+/* Chart text styling */
+.chart-number {
+    font-size: 42px;
+    display: block;
+    margin-bottom: 0;
+    line-height: 1;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.chart-text {
+    font-size: 12px;
+    font-weight: normal;
+    display: block;
+    opacity: 0.9;
+    margin-top: 2px;
+}
+
 /* Responsive Design */
 @media (max-width: 1280px) {
     .dashboard-content {
@@ -1216,4 +1408,21 @@ body {
     border-width: 0 7px 7px 7px;
     border-style: solid;
     border-color: transparent transparent var(--white, #fff) transparent;
+}
+
+/* Logo-specific size adjustments */
+.link-icon.nse img {
+    max-width: 30px;
+}
+
+.link-icon.bse img {
+    max-width: 30px;
+}
+
+.link-icon.sebi img {
+    max-width: 30px;
+}
+
+.link-icon.money-control img {
+    max-width: 25px;
 }

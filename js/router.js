@@ -17,7 +17,7 @@ class AuthRouter {
             'admin-dashboard': '/components/dashboard/admin-dashboard.html', // Add explicit admin-dashboard route
             'manage-ipo': '/components/dashboard/manage-ipo.html',
             'ipo': '/ipo.html',
-            'upcoming-ipo': '/components/ipo/all-upcoming-ipo.html',
+            'all-upcoming': '/ipo-all-upcoming.html',
             'home': '/index.html'
         };
         
@@ -148,7 +148,7 @@ class AuthRouter {
         }
         
         // Decide navigation strategy.
-        const inAppRoutes = ['dashboard', 'admin-dashboard', 'manage-ipo', 'upcoming-ipo', 'home', 'ipo'];
+        const inAppRoutes = ['dashboard', 'admin-dashboard', 'manage-ipo', 'all-upcoming', 'home', 'ipo'];
 
         if (inAppRoutes.includes(route)) {
             // Keep user on root page and update hash – this preserves same-origin storage for file:// protocol

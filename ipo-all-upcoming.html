@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Upcoming IPOs - Bluestock Fintech</title>
+    <link rel="icon" type="image/png" href="images/Copy of logo.png">
+    
+    <!-- Load global styles -->
+    <link rel="stylesheet" href="/styles/base.css">
+    <link rel="stylesheet" href="/styles/navbar.css">
+    <link rel="stylesheet" href="/styles/footer.css">
+    <link rel="stylesheet" href="/styles/ipo.css">
+    
+    <!-- Load Supabase from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Load our Supabase initialization helper first -->
+    <script src="/js/supabase-init.js"></script>
+    
+    <!-- Load router.js for navigation -->
+    <script src="/js/router.js"></script>
+</head>
+<body>
+    <!-- Navigation bar -->
+    <div id="navbar-container"></div>
+    
+    <!-- Main content - All Upcoming IPOs page -->
+    <div id="all-upcoming-container"></div>
+    
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Load components
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load navbar
+            fetch('/components/navbar.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('navbar-container').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading navbar:', error);
+                });
+                
+            // Load All Upcoming IPO content
+            fetch('/components/ipo/sections/all-upcoming.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('all-upcoming-container').innerHTML = html;
+                    
+                    // Execute scripts in the loaded HTML
+                    const scripts = document.getElementById('all-upcoming-container').querySelectorAll('script');
+                    scripts.forEach(script => {
+                        const newScript = document.createElement('script');
+                        Array.from(script.attributes).forEach(attr => {
+                            newScript.setAttribute(attr.name, attr.value);
+                        });
+                        newScript.appendChild(document.createTextNode(script.innerHTML));
+                        script.parentNode.replaceChild(newScript, script);
+                    });
+                    
+                    // Initialize FAQs if needed
+                    if (typeof initializeFAQToggle === 'function') {
+                        initializeFAQToggle();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading All Upcoming IPO content:', error);
+                });
+                
+            // Load footer
+            fetch('/components/footer.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('footer-container').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading footer:', error);
+                });
+        });
+    </script>
+</body>
+</html>
