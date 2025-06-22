@@ -444,14 +444,65 @@
                     }
                 });
             }
-        });
-    </script>    <script src="../../js/router.js"></script>
+        });    </script>    <script src="../../js/router.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {            console.log('[Admin Dashboard] DOM loaded, initializing router...');
+            
+            // Add debugging for all navigation links
+            const navLinks = document.querySelectorAll('a[data-route]');
+            console.log('[Admin Dashboard] Found navigation links:', navLinks.length);
+            navLinks.forEach((link, index) => {
+                const route = link.getAttribute('data-route');
+                console.log(`[Admin Dashboard] Link ${index}: ${route}`);
+                
+                link.addEventListener('click', function(e) {
+                    console.log(`[Admin Dashboard] Direct click handler for ${route}`);
+                });
+            });
+            
+            // Initialize router if not already done
             if (window.bluestockRouter) {
-                window.bluestockRouter.init();
+                console.log('[Admin Dashboard] Router found, ensuring initialization');
+                if (typeof window.bluestockRouter.init === 'function') {
+                    window.bluestockRouter.init();
+                }
+                
+                // Add extra navigation handling as backup
+                document.addEventListener('click', function(e) {
+                    const link = e.target.closest('a[data-route]');
+                    if (link) {
+                        const route = link.getAttribute('data-route');
+                        console.log('[Admin Dashboard] Manual navigation to:', route);
+                        e.preventDefault();
+                        if (window.bluestockRouter && typeof window.bluestockRouter.navigate === 'function') {
+                            window.bluestockRouter.navigate(route);
+                        } else {
+                            console.error('[Admin Dashboard] Router navigate function not available');
+                        }
+                    }
+                });
             } else {
-                console.error('window.bluestockRouter is not defined!');
+                console.error('[Admin Dashboard] window.bluestockRouter is not defined!');
+                
+                // Fallback for manual navigation
+                document.addEventListener('click', function(e) {
+                    const link = e.target.closest('a[data-route]');
+                    if (link) {
+                        e.preventDefault();
+                        const route = link.getAttribute('data-route');
+                        console.log('[Admin Dashboard] Fallback navigation to:', route);
+                        
+                        // Manual routing fallback
+                        const routes = {
+                            'dashboard': '/components/dashboard/admin-dashboard.html',
+                            'manage-ipo': '/components/dashboard/manage-ipo.html'
+                        };
+                        
+                        if (routes[route]) {
+                            window.location.href = routes[route];
+                        }
+                    }
+                });
             }
         });
     </script>

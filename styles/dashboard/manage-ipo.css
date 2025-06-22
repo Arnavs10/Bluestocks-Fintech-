@@ -1,9 +1,67 @@
 /* styles/dashboard/manage-ipo.css */
 
+/* CSS Variables for consistency */
+:root {
+    --primary-color: #6366F1;
+    --secondary-color: #7B7DE5;
+    --text-color: #333;
+    --light-text: #777;
+    --bg-color: #F6F7FB;
+    --white: #FFFFFF;
+    --sidebar-width: 220px;
+    --border-radius: 10px;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    --gain-color: #39E1D7;
+    --loss-color: #8980F5;
+    --positive-color: #2ecc71;
+    --highlight-color: #4361ee;
+}
+
+/* Dashboard Header Styles */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.header-pipe {
+    color: #ddd;
+    margin: 0 10px;
+}
+
+.header-breadcrumb {
+    color: var(--light-text);
+    font-weight: 400;
+}
+
+.register-ipo-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.register-ipo-btn:hover {
+    background-color: #5640ff;
+}
+
 .ipo-section {
     background-color: #fff;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     margin-top: 20px;
 }
@@ -18,7 +76,7 @@
 .ipo-header h2 {
     font-size: 20px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-color);
 }
 
 .btn {
@@ -42,67 +100,144 @@
 
 .ipo-table-container {
     overflow-x: auto;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* Table Improvements */
 .ipo-table {
     width: 100%;
     border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .ipo-table th, .ipo-table td {
-    padding: 15px;
+    padding: 12px 16px;
     text-align: left;
-    border-bottom: 1px solid #f0f0f0;
-    white-space: nowrap;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
 }
 
 .ipo-table th {
+    background-color: #f8fafc;
     font-weight: 600;
-    color: #888;
+    color: #64748b;
     font-size: 12px;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .ipo-table td {
     font-size: 14px;
-    color: #333;
+    color: var(--text-color);
+    white-space: nowrap;
 }
 
-.status {
-    padding: 5px 12px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: 600;
+/* Action column alignment and spacing */
+.ipo-table td:nth-child(9),
+.ipo-table td:nth-child(10) {
     text-align: center;
-    display: inline-block;
+    white-space: nowrap;
+    width: 120px;
 }
 
-.status.ongoing {
-    background-color: #e6f7f0;
-    color: #00bfa5;
+/* Status column alignment */
+.ipo-table td:nth-child(8) {
+    text-align: center;
+    white-space: nowrap;
 }
 
-.status.comming {
-    background-color: #fff8e1;
-    color: #ffab00;
+/* Company name column */
+.ipo-table td:first-child {
+    font-weight: 500;
+    color: #1e293b;
+    min-width: 150px;
 }
 
-.status.new-listed {
-    background-color: #ffebee;
-    color: #f44336;
+/* Ensure all table cells have consistent height */
+.ipo-table td {
+    height: 60px;
+    vertical-align: middle;
 }
 
+/* Table row consistency */
+.ipo-table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.2s ease;
+}
+
+.ipo-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.ipo-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Action Button Styles */
 .action-btn {
-    padding: 8px 15px;
-    border-radius: 5px;
+    padding: 0.4rem 1.2rem;
+    border-radius: 6px;
     border: none;
     cursor: pointer;
     font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .update-btn {
-    background-color: #6759ff;
-    color: white;
+    background-color: #5640ff;
+    color: #ffffff;
+}
+
+.update-btn:hover {
+    background-color: #4338ca;
+}
+
+/* Icon Button Styles - Consistent across all rows */
+.delete-btn, .view-btn {
+    cursor: pointer;
+    padding: 0.4rem;
+    margin: 0 0.2rem;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+
+.delete-btn {
+    color: #ef4444 !important;
+}
+
+.delete-btn:hover {
+    color: #dc2626 !important;
+    background-color: #fef2f2 !important;
+    transform: scale(1.1);
+}
+
+.view-btn {
+    color: #6b7280 !important;
+}
+
+.view-btn:hover {
+    color: #374151 !important;
+    background-color: #f9fafb !important;
+    transform: scale(1.1);
 }
 
 .icon-btn {
@@ -118,27 +253,94 @@
     color: #333;
 }
 
+/* Pagination Styles */
 .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 24px;
+    gap: 8px;
 }
 
-.page-link {
-    color: #555;
-    padding: 8px 12px;
-    text-decoration: none;
-    margin: 0 4px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    transition: background-color 0.3s, color 0.3s;
+.page-number,
+.page-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
-.page-link:hover, .page-link.active {
-    background-color: #6759ff;
-    color: #fff;
+.page-number:hover,
+.page-arrow:hover:not(:disabled) {
     border-color: #6759ff;
+    color: #6759ff;
+    background: #f8f9ff;
+}
+
+.page-number.active {
+    background: #6759ff;
+    border-color: #6759ff;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.page-arrow:disabled {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+    color: #d1d5db;
+    cursor: not-allowed;
+}
+
+.page-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    color: #9ca3af;
+    font-size: 14px;
+    font-weight: 500;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Arrow icons */
+.page-arrow {
+    font-family: inherit;
+    font-size: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .pagination {
+        gap: 4px;
+    }
+    
+    .page-number,
+    .page-arrow {
+        min-width: 36px;
+        height: 36px;
+        padding: 0 8px;
+        font-size: 13px;
+    }
+    
+    .page-ellipsis {
+        min-width: 36px;
+        height: 36px;
+        font-size: 13px;
+    }
 }
 
 .page-link.prev, .page-link.next {
@@ -170,7 +372,7 @@
     border: 1px solid #888;
     width: 90%;
     max-width: 550px;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     position: relative;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
@@ -212,4 +414,151 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     box-sizing: border-box;
+}
+
+/* Widget and dashboard content styles */
+.dashboard-content {
+    margin-top: 20px;
+}
+
+.widget {
+    background-color: var(--white, #FFFFFF);
+    border-radius: var(--border-radius, 10px);
+    box-shadow: var(--shadow, 0 4px 15px rgba(0, 0, 0, 0.05));
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.widget h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+/* Override for manage-ipo page - make IPO dashboard full width */
+.ipo-dashboard {
+    grid-column: 1 / -1; /* Take full width across all columns */
+    width: 100%;
+}
+
+/* Override dashboard content grid for manage-ipo page */
+.dashboard-content {
+    display: block; /* Remove grid layout for single full-width widget */
+}
+
+/* CRUD Operation Styles */
+.action-btn {
+    transition: all 0.2s ease;
+}
+
+/* Status Badge Styles */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Status-specific colors matching the image */
+.status-badge.ongoing {
+    background-color: #e8f5e8;
+    color: #2d7738;
+    border: 1px solid #c6e9c6;
+}
+
+.status-badge.coming {
+    background-color: #fff8e1;
+    color: #f57c00;
+    border: 1px solid #ffecb3;
+}
+
+.status-badge.new-listed {
+    background-color: #ffebee;
+    color: #d32f2f;
+    border: 1px solid #ffcdd2;
+}
+
+/* Legacy status class support */
+.status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.status.ongoing {
+    background-color: #e8f5e8;
+    color: #2d7738;
+    border: 1px solid #c6e9c6;
+}
+
+.status.coming {
+    background-color: #fff8e1;
+    color: #f57c00;
+    border: 1px solid #ffecb3;
+}
+
+.status.new-listed {
+    background-color: #ffebee;
+    color: #d32f2f;
+    border: 1px solid #ffcdd2;
+}
+
+/* Form validation styles */
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.form-group input:invalid {
+    border-color: #ef4444;
+}
+
+.form-group input:valid {
+    border-color: #10b981;
+}
+
+/* Force font-awesome icon consistency */
+.fa-trash, .fa-eye {
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    line-height: 1 !important;
+}
+
+/* Ensure all table cells have the same baseline styles */
+.ipo-table td * {
+    box-sizing: border-box;
+}
+
+/* Remove any conflicting button styles that might affect icons */
+.ipo-table button,
+.ipo-table i {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.ipo-table .fa-trash,
+.ipo-table .fa-eye {
+    font-family: "Font Awesome 6 Free" !important;
+}
+
+/* Ensure status badge container has consistent alignment */
+.ipo-table td:nth-child(8) .status-badge {
+    margin: 0 auto;
 }

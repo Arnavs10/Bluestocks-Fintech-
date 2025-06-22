@@ -113,6 +113,8 @@ class AuthRouter {
      */
     navigate(route, replaceState = false, preventRecursion = false) {
         console.log(`[Bluestock Router] Navigating to: ${route}`);
+        console.log(`[Bluestock Router] Route exists in routes:`, !!this.routes[route]);
+        console.log(`[Bluestock Router] Route path:`, this.routes[route]);
         
         // Check if route exists
         if (!this.routes[route]) {
@@ -135,6 +137,19 @@ class AuthRouter {
             return;
         }
         
+        // For manage-ipo route, use direct URL navigation for reliability
+        if (route === 'manage-ipo') {
+            console.log(`[Bluestock Router] Using direct URL for manage-ipo navigation`);
+            const manageIpoUrl = this.routes['manage-ipo'];
+            
+            if (replaceState) {
+                window.location.replace(manageIpoUrl);
+            } else {
+                window.location.href = manageIpoUrl;
+            }
+            return;
+        }
+        
         // Check if route is protected
         if (this.protectedRoutes.includes(route)) {
             console.log(`[Bluestock Router] Protected route detected: ${route}`);
@@ -148,7 +163,7 @@ class AuthRouter {
         }
         
         // Decide navigation strategy.
-        const inAppRoutes = ['dashboard', 'admin-dashboard', 'manage-ipo', 'all-upcoming', 'home', 'ipo'];
+        const inAppRoutes = ['dashboard', 'admin-dashboard', 'all-upcoming', 'home', 'ipo'];
 
         if (inAppRoutes.includes(route)) {
             // Keep user on root page and update hash – this preserves same-origin storage for file:// protocol

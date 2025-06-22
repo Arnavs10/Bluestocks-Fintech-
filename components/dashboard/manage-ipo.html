@@ -3,13 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Bluestock Fintech</title>
+    <title>Manage IPO - Bluestock Fintech</title>
+    <link rel="stylesheet" href="../../styles/dashboard/admin-dashboard.css">
+    <link rel="stylesheet" href="../../styles/dashboard/dropdown.css">
+    <link rel="stylesheet" href="../../styles/dashboard/dropdown-reset.css">
     <link rel="stylesheet" href="../../styles/dashboard/manage-ipo.css">
     <!-- Using Font Awesome 6 for all icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Load Supabase JavaScript SDK first -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Load our Supabase initialization -->
+    <script src="../../js/supabase-init.js"></script>
+    <!-- Load our router -->
+    <script src="../../js/router.js"></script>
+    <!-- Load auth script -->
+    <script src="../../js/auth.js"></script>
     <!-- Directly initialize Supabase and check auth state -->
     <script>
         // User name update - Apply the name as soon as page starts loading
@@ -104,8 +113,6 @@
             }
         })();
     </script>
-    <!-- Then load our auth.js which depends on it -->
-    <script src="../../js/auth.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -150,55 +157,9 @@
                             <span id="userDisplayName" class="user-dropdown-toggle" tabindex="0">Hi, User</span>
                             <i class="fa-solid fa-chevron-down user-dropdown-toggle" tabindex="0"></i>
                             <div id="userDropdownMenu" class="user-dropdown-menu">
-                                <button id="logoutBtn" class="logout-btn">Logout</button>
-                            </div>
-                        </div>
-                        <!-- Modal for Registering/Updating IPO -->
-                        <div id="ipo-modal" class="modal">
-                            <div class="modal-content">
-                                <span class="close-button">&times;</span>
-                                <h2 id="modal-title">Register IPO</h2>
-                                <form id="ipo-form">
-                                    <input type="hidden" id="ipo-id">
-                                    <div class="form-group">
-                                        <label for="company-name">Company Name</label>
-                                        <input type="text" id="company-name" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="price-band">Price Band</label>
-                                        <input type="text" id="price-band" placeholder="e.g., ₹ 100 - ₹ 110">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="open-date">Open Date</label>
-                                        <input type="date" id="open-date">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="close-date">Close Date</label>
-                                        <input type="date" id="close-date">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="issue-size">Issue Size</label>
-                                        <input type="text" id="issue-size" placeholder="e.g., 500 Cr.">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="issue-type">Issue Type</label>
-                                        <input type="text" id="issue-type" value="Book Built">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="listing-date">Listing Date</label>
-                                        <input type="date" id="listing-date">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="status">Status</label>
-                                        <select id="status">
-                                            <option value="Coming">Coming</option>
-                                            <option value="Ongoing">Ongoing</option>
-                                            <option value="New Listed">New Listed</option>
-                                            <option value="Closed">Closed</option>
-                                        </select>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Save IPO</button>
-                                </form>
+                                <button id="logoutBtn" class="logout-btn">
+                                    <i class="fa-solid fa-sign-out-alt"></i> Logout
+                                </button>
                             </div>
                         </div>
                         <!-- Direct name update script -->
@@ -236,17 +197,73 @@
                                         }
                                     }, 200); // Small delay to ensure the element is fully rendered
                                 } catch(e) {
-                                    // silent catch
+                                    // Silent error handling in production
                                 }
                             })();
                         </script>
                     </div>
+                    <div class="notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
                 </div>
             </div>
             
+            <!-- Dashboard Title and Social Icons -->
+            
+            <!-- Dashboard Title -->
             <div class="dashboard-header">
                 <h1>Upcoming IPO <span class="header-pipe">|</span> <span class="header-breadcrumb">Dashboard</span></h1>
                 <button class="register-ipo-btn">Register IPO</button>
+            </div>
+
+            <!-- Modal for Registering/Updating IPO -->
+            <div id="ipo-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>
+                    <h2 id="modal-title">Register IPO</h2>
+                    <form id="ipo-form">
+                        <input type="hidden" id="ipo-id">
+                        <div class="form-group">
+                            <label for="company-name">Company Name</label>
+                            <input type="text" id="company-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="price-band">Price Band</label>
+                            <input type="text" id="price-band" placeholder="e.g., ₹ 100 - ₹ 110">
+                        </div>
+                        <div class="form-group">
+                            <label for="open-date">Open Date</label>
+                            <input type="date" id="open-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="close-date">Close Date</label>
+                            <input type="date" id="close-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="issue-size">Issue Size</label>
+                            <input type="text" id="issue-size" placeholder="e.g., 500 Cr.">
+                        </div>
+                        <div class="form-group">
+                            <label for="issue-type">Issue Type</label>
+                            <input type="text" id="issue-type" value="Book Built">
+                        </div>
+                        <div class="form-group">
+                            <label for="listing-date">Listing Date</label>
+                            <input type="date" id="listing-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status">
+                                <option value="Coming">Coming</option>
+                                <option value="Ongoing">Ongoing</option>
+                                <option value="New Listed">New Listed</option>
+                                <option value="Closed">Closed</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save IPO</button>
+                    </form>
+                </div>
             </div>
 
             <div class="dashboard-content">
@@ -276,49 +293,266 @@
                             </tbody>
                         </table>
 <script>
-const ipoData = [
-  { company: "Adani Power", price_band: "₹ 329 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "45530.15 Cr.", issue_type: "Book Built", listing_date: "2023-06-10", status: "Ongoing" },
-  { company: "VBL LTD", price_band: "₹ 229 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "1330.15 Cr.", issue_type: "Book Built", listing_date: "2018-06-10", status: "Comming" },
-  { company: "Tata Motor", price_band: "₹ 12549 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "1340.15 Cr.", issue_type: "Book Built", listing_date: "2016-06-10", status: "New Listed" },
-  { company: "HDFC LTD", price_band: "₹ 1244 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "830.15 Cr.", issue_type: "Book Built", listing_date: "2029-06-11", status: "Comming" },
-  { company: "Tata Motor", price_band: "₹ 629 - 136", open: "2024-06-01", close: "2024-06-05", issue_size: "820.15 Cr.", issue_type: "Book Built", listing_date: "2024-06-05", status: "Ongoing" },
-  { company: "VBL LTD", price_band: "₹ 629 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "130.15 Cr.", issue_type: "Book Built", listing_date: "2024-06-10", status: "Comming" },
-  { company: "Tata Motor", price_band: "₹ 6729 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "170.15 Cr.", issue_type: "Book Built", listing_date: "2027-06-10", status: "New Listed" },
-  { company: "VBL LTD", price_band: "₹ 1629 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "130.15 Cr.", issue_type: "Book Built", listing_date: "2022-06-10", status: "Comming" },
-  { company: "Tata Motor", price_band: "₹ 2329 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "130.15 Cr.", issue_type: "Book Built", listing_date: "2023-06-10", status: "New Listed" },
-  { company: "VBL LTD", price_band: "₹ 329 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "130.15 Cr.", issue_type: "Book Built", listing_date: "2021-06-10", status: "Comming" }
+// IPO Data Management with CRUD Operations
+let ipoData = [
+  { id: 1, company: "Adani Power", price_band: "₹ 329 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "45530.15 Cr.", issue_type: "Book Built", listing_date: "2023-06-10", status: "Ongoing" },
+  { id: 2, company: "VBL LTD", price_band: "₹ 229 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "1330.15 Cr.", issue_type: "Book Built", listing_date: "2018-06-10", status: "Coming" },
+  { id: 3, company: "Tata Motor", price_band: "₹ 12549 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "1340.15 Cr.", issue_type: "Book Built", listing_date: "2016-06-10", status: "New Listed" },
+  { id: 4, company: "HDFC LTD", price_band: "₹ 1244 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "830.15 Cr.", issue_type: "Book Built", listing_date: "2029-06-11", status: "Coming" },
+  { id: 5, company: "Tata Motor", price_band: "₹ 629 - 136", open: "2024-06-01", close: "2024-06-05", issue_size: "820.15 Cr.", issue_type: "Book Built", listing_date: "2024-06-05", status: "Ongoing" },
+  { id: 6, company: "VBL LTD", price_band: "₹ 629 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "130.15 Cr.", issue_type: "Book Built", listing_date: "2024-06-10", status: "Coming" },
+  { id: 7, company: "Tata Motor", price_band: "₹ 6729 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "170.15 Cr.", issue_type: "Book Built", listing_date: "2027-06-10", status: "New Listed" },
+  { id: 8, company: "VBL LTD", price_band: "₹ 1629 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "130.15 Cr.", issue_type: "Book Built", listing_date: "2022-06-10", status: "Coming" },
+  { id: 9, company: "Tata Motor", price_band: "₹ 2329 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "130.15 Cr.", issue_type: "Book Built", listing_date: "2023-06-10", status: "New Listed" },
+  { id: 10, company: "VBL LTD", price_band: "₹ 329 - 136", open: "2024-06-03", close: "2024-06-05", issue_size: "130.15 Cr.", issue_type: "Book Built", listing_date: "2021-06-10", status: "Coming" }
 ];
 
-const statusBadgeStyles = {
-  "Ongoing": "background:#e7f8ee;color:#1ab759;",
-  "Comming": "background:#fff9e5;color:#ffb300;",
-  "New Listed": "background:#ffeaea;color:#ff5c5c;"
+let nextId = 11; // For generating new IDs
+
+// Status badge class mapping
+const statusBadgeClasses = {
+  "Ongoing": "ongoing",
+  "Coming": "coming", 
+  "New Listed": "new-listed"
 };
 
+// CRUD Operations
+
+// CREATE - Add new IPO
+function createIPO(ipoDetails) {
+  const newIPO = {
+    id: nextId++,
+    company: ipoDetails.company,
+    price_band: ipoDetails.priceBand,
+    open: ipoDetails.openDate,
+    close: ipoDetails.closeDate,
+    issue_size: ipoDetails.issueSize,
+    issue_type: ipoDetails.issueType,
+    listing_date: ipoDetails.listingDate,
+    status: ipoDetails.status
+  };
+  
+  ipoData.push(newIPO);
+  renderIpoTable();
+  
+  // Show success message
+  showNotification('IPO created successfully!', 'success');
+  
+  return newIPO;
+}
+
+// READ - Get IPO by ID
+function getIPOById(id) {
+  return ipoData.find(ipo => ipo.id === parseInt(id));
+}
+
+// UPDATE - Update existing IPO
+function updateIPO(id, updatedDetails) {
+  const index = ipoData.findIndex(ipo => ipo.id === parseInt(id));
+  
+  if (index !== -1) {
+    ipoData[index] = {
+      ...ipoData[index],
+      company: updatedDetails.company,
+      price_band: updatedDetails.priceBand,
+      open: updatedDetails.openDate,
+      close: updatedDetails.closeDate,
+      issue_size: updatedDetails.issueSize,
+      issue_type: updatedDetails.issueType,
+      listing_date: updatedDetails.listingDate,
+      status: updatedDetails.status
+    };
+    
+    renderIpoTable();
+    showNotification('IPO updated successfully!', 'success');
+    
+    return ipoData[index];
+  }
+  
+  return null;
+}
+
+// DELETE - Remove IPO
+function deleteIPO(id) {
+  const index = ipoData.findIndex(ipo => ipo.id === parseInt(id));
+  
+  if (index !== -1) {
+    const deletedIPO = ipoData.splice(index, 1)[0];
+    renderIpoTable();
+    showNotification('IPO deleted successfully!', 'success');
+    
+    return deletedIPO;
+  }
+  
+  return null;
+}
+
+// Render IPO Table with CRUD action buttons
 function renderIpoTable() {
   const tbody = document.getElementById('ipo-table-body');
   tbody.innerHTML = '';
+  
   ipoData.forEach(ipo => {
-    const badgeStyle = statusBadgeStyles[ipo.status] || '';
-    tbody.innerHTML += `
-      <tr>
-        <td>${ipo.company}</td>
-        <td>${ipo.price_band}</td>
-        <td>${ipo.open}</td>
-        <td>${ipo.close}</td>
-        <td>${ipo.issue_size}</td>
-        <td>${ipo.issue_type}</td>
-        <td>${ipo.listing_date}</td>
-        <td><span class="status-badge" style="${badgeStyle}padding:0.3em 1em;border-radius:16px;font-weight:600;">${ipo.status}</span></td>
-        <td><button class="action-btn" style="background:#5640ff;color:#fff;border:none;border-radius:6px;padding:0.4em 1.2em;font-weight:600;">Update</button></td>
-        <td>
-          <i class="fa-solid fa-trash" style="color:#ff5c5c;cursor:pointer;margin-right:10px;"></i>
-          <i class="fa-solid fa-eye" style="color:#4d4d4d;cursor:pointer;"></i>
-        </td>
-      </tr>
+    const statusClass = statusBadgeClasses[ipo.status] || '';
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${ipo.company}</td>
+      <td>${ipo.price_band}</td>
+      <td>${ipo.open}</td>
+      <td>${ipo.close}</td>
+      <td>${ipo.issue_size}</td>
+      <td>${ipo.issue_type}</td>
+      <td>${ipo.listing_date}</td>
+      <td><span class="status-badge ${statusClass}">${ipo.status}</span></td>
+      <td>
+        <button class="action-btn update-btn" data-id="${ipo.id}">
+          Update
+        </button>
+      </td>
+      <td>
+        <i class="fa-solid fa-trash delete-btn" data-id="${ipo.id}" title="Delete IPO"></i>
+        <i class="fa-solid fa-eye view-btn" data-id="${ipo.id}" title="View IPO Details"></i>
+      </td>
     `;
+    tbody.appendChild(row);
+  });
+  
+  // Add event listeners for CRUD operations
+  addCRUDEventListeners();
+}
+
+// Add event listeners for CRUD operations
+function addCRUDEventListeners() {
+  // Update button listeners
+  document.querySelectorAll('.update-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      openUpdateModal(id);
+    });
+  });
+  
+  // Delete button listeners
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      confirmDelete(id);
+    });
+  });
+  
+  // View button listeners
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      viewIPODetails(id);
+    });
   });
 }
+
+// Open modal for updating IPO
+function openUpdateModal(id) {
+  const ipo = getIPOById(id);
+  if (!ipo) return;
+  
+  const modal = document.getElementById('ipo-modal');
+  const modalTitle = document.getElementById('modal-title');
+  
+  // Populate form with existing data
+  document.getElementById('ipo-id').value = ipo.id;
+  document.getElementById('company-name').value = ipo.company;
+  document.getElementById('price-band').value = ipo.price_band;
+  document.getElementById('open-date').value = ipo.open;
+  document.getElementById('close-date').value = ipo.close;
+  document.getElementById('issue-size').value = ipo.issue_size;
+  document.getElementById('issue-type').value = ipo.issue_type;
+  document.getElementById('listing-date').value = ipo.listing_date;
+  document.getElementById('status').value = ipo.status;
+  
+  modalTitle.textContent = 'Update IPO';
+  modal.style.display = 'block';
+}
+
+// Confirm delete operation
+function confirmDelete(id) {
+  const ipo = getIPOById(id);
+  if (!ipo) return;
+  
+  if (confirm(`Are you sure you want to delete ${ipo.company}? This action cannot be undone.`)) {
+    deleteIPO(id);
+  }
+}
+
+// View IPO details in a modal/alert
+function viewIPODetails(id) {
+  const ipo = getIPOById(id);
+  if (!ipo) return;
+  
+  const details = `
+IPO Details:
+━━━━━━━━━━━━━━━━━━━━
+Company: ${ipo.company}
+Price Band: ${ipo.price_band}
+Open Date: ${ipo.open}
+Close Date: ${ipo.close}
+Issue Size: ${ipo.issue_size}
+Issue Type: ${ipo.issue_type}
+Listing Date: ${ipo.listing_date}
+Status: ${ipo.status}
+━━━━━━━━━━━━━━━━━━━━
+  `;
+  
+  alert(details);
+}
+
+// Show notification messages
+function showNotification(message, type = 'info') {
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  notification.textContent = message;
+  
+  // Style the notification
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    z-index: 10000;
+    animation: slideIn 0.3s ease-out;
+    ${type === 'success' ? 'background-color: #10b981;' : ''}
+    ${type === 'error' ? 'background-color: #ef4444;' : ''}
+    ${type === 'info' ? 'background-color: #3b82f6;' : ''}
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Remove notification after 3 seconds
+  setTimeout(() => {
+    notification.style.animation = 'slideOut 0.3s ease-in';
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 300);
+  }, 3000);
+}
+
+// Add CSS animation for notifications
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  @keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
+
+// Initial render
 renderIpoTable();
 </script>
 
@@ -347,6 +581,49 @@ renderIpoTable();
         document.addEventListener('DOMContentLoaded', function() {
             console.log('[Bluestock DEBUG] DOMContentLoaded event fired');
             
+            // Initialize router for navigation
+            if (window.bluestockRouter) {
+                console.log('[Bluestock DEBUG] Router found, initializing navigation handlers');
+                
+                // Initialize the router
+                if (typeof window.bluestockRouter.init === 'function') {
+                    window.bluestockRouter.init();
+                }
+                
+                // Add click handlers for navigation links
+                document.addEventListener('click', function(e) {
+                    const link = e.target.closest('a[data-route]');
+                    if (link) {
+                        e.preventDefault();
+                        const route = link.getAttribute('data-route');
+                        console.log('[Bluestock DEBUG] Navigating to route:', route);
+                        window.bluestockRouter.navigate(route);
+                    }
+                });
+            } else {
+                console.error('[Bluestock DEBUG] window.bluestockRouter is not defined!');
+                
+                // Fallback navigation handling
+                document.addEventListener('click', function(e) {
+                    const link = e.target.closest('a[data-route]');
+                    if (link) {
+                        e.preventDefault();
+                        const route = link.getAttribute('data-route');
+                        console.log('[Manage IPO] Fallback navigation to:', route);
+                        
+                        // Manual routing fallback
+                        const routes = {
+                            'dashboard': '/components/dashboard/admin-dashboard.html',
+                            'manage-ipo': '/components/dashboard/manage-ipo.html'
+                        };
+                        
+                        if (routes[route]) {
+                            window.location.href = routes[route];
+                        }
+                    }
+                });
+            }
+            
             // User dropdown toggle
             const userDropdownToggles = document.querySelectorAll('.user-dropdown-toggle');
             const userDropdownMenu = document.getElementById('userDropdownMenu');
@@ -366,13 +643,6 @@ renderIpoTable();
                     }
                 }
             });
-            
-            if (window.bluestockRouter) {
-                console.log('[Bluestock DEBUG] Forcing window.bluestockRouter.init()');
-                window.bluestockRouter.init();
-            } else {
-                console.error('[Bluestock DEBUG] window.bluestockRouter is not defined!');
-            }
         });
     </script>
     <script>
@@ -421,7 +691,6 @@ renderIpoTable();
             }
         })();
     </script>
-    <script src="../../js/router.js"></script>
     <script>
         function toggleDropdown() {
             document.getElementById('userDropdownMenu').classList.toggle('show');
@@ -490,39 +759,41 @@ renderIpoTable();
             }
 
             // User authentication check
-            // Get Supabase client directly
-            const supabase = window.supabaseClient;
-            
-            // Direct Supabase authentication check
-            async function directUserCheck() {
-                if (!supabase) {
-                    console.error('Supabase client is not initialized.');
-                    return;
-                }
+            async function checkAuthenticationAndRedirect() {
                 try {
-                    const { data, error } = await supabase.auth.getSession();
+                    if (!window.supabaseClient) {
+                        console.error('Supabase client not initialized, redirecting to IPO page');
+                        window.location.href = '/ipo.html?from=no-client';
+                        return;
+                    }
+
+                    const { data, error } = await window.supabaseClient.auth.getSession();
+                    
                     if (error) {
                         console.error('Error getting session:', error.message);
-                        // Redirect to IPO page if there's an error
-                        window.location.href = '/ipo.html?from=error';
+                        window.location.href = '/ipo.html?from=session-error';
                         return;
                     }
+                    
                     if (!data || !data.session) {
-                        console.log('No active session found. Redirecting to IPO page.');
-                        // Redirect to IPO page if not authenticated
-                        window.location.href = '/ipo.html?from=nosession';
+                        console.log('No active session found. Redirecting to sign-in page.');
+                        window.location.href = '/components/auth/signin.html?redirect=manage-ipo';
                         return;
                     }
+                    
+                    console.log('User authenticated successfully');
+                    // User is authenticated, continue with page initialization
+                    await updateUserName();
+                    
                 } catch (e) {
-                    console.error('Exception during session check:', e.message);
-                    window.location.href = '/ipo.html?from=error';
+                    console.error('Exception during authentication check:', e.message);
+                    window.location.href = '/ipo.html?from=auth-exception';
                 }
             }
             
-            // Run direct authentication check and related logic in an async IIFE
+            // Run authentication check and related logic in an async IIFE
             (async function() {
-                await directUserCheck();
-                await updateUserName();
+                await checkAuthenticationAndRedirect();
 
                 // Sample data for the IPO table
                 const ipoData = [
@@ -588,6 +859,75 @@ renderIpoTable();
                     }
                 });
             }
+
+            // Register IPO button and modal functionality
+            const registerIpoBtn = document.querySelector('.register-ipo-btn');
+            const ipoModal = document.getElementById('ipo-modal');
+            const closeButton = document.querySelector('.close-button');
+            const ipoForm = document.getElementById('ipo-form');
+            
+            if (registerIpoBtn) {
+                registerIpoBtn.addEventListener('click', function() {
+                    ipoModal.style.display = 'block';
+                    document.getElementById('modal-title').textContent = 'Register IPO';
+                    ipoForm.reset();
+                    document.getElementById('ipo-id').value = '';
+                });
+            }
+            
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    ipoModal.style.display = 'none';
+                });
+            }
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === ipoModal) {
+                    ipoModal.style.display = 'none';
+                }
+            });
+            
+            // Handle form submission for both CREATE and UPDATE operations
+            if (ipoForm) {
+                ipoForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = {
+                        company: document.getElementById('company-name').value,
+                        priceBand: document.getElementById('price-band').value,
+                        openDate: document.getElementById('open-date').value,
+                        closeDate: document.getElementById('close-date').value,
+                        issueSize: document.getElementById('issue-size').value,
+                        issueType: document.getElementById('issue-type').value,
+                        listingDate: document.getElementById('listing-date').value,
+                        status: document.getElementById('status').value
+                    };
+                    
+                    // Validate required fields
+                    if (!formData.company.trim()) {
+                        alert('Company name is required!');
+                        return;
+                    }
+                    
+                    const ipoId = document.getElementById('ipo-id').value;
+                    
+                    if (ipoId) {
+                        // UPDATE operation
+                        updateIPO(ipoId, formData);
+                    } else {
+                        // CREATE operation
+                        createIPO(formData);
+                    }
+                    
+                    // Close modal and reset form
+                    ipoModal.style.display = 'none';
+                    ipoForm.reset();
+                    document.getElementById('ipo-id').value = '';
+                });
+            }
+            
+            // ...existing code... */
         });
 
         // Fallback for logout button if it's in a dropdown that might not be immediately available
